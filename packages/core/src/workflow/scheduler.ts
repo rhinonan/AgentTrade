@@ -54,12 +54,14 @@ export class WorkflowScheduler {
           const results = await Promise.all(
             step.children.map(child => this.executeSubStep(child, currentCtx, options))
           );
-          // Merge findings from parallel results
+          // Merge findings from parallel results, deduplicating against existing context
           const allFindings = results.flatMap(r => r.findings);
           const unique = allFindings.filter(
             (f, i, arr) => arr.findIndex(x => x.step === f.step && x.agent === f.agent) === i
           );
-          currentCtx = { ...currentCtx, findings: [...currentCtx.findings, ...unique] };
+          const existingKeys = new Set(currentCtx.findings.map(f => `${f.step}|${f.agent}`));
+          const trulyNew = unique.filter(f => !existingKeys.has(`${f.step}|${f.agent}`));
+          currentCtx = { ...currentCtx, findings: [...currentCtx.findings, ...trulyNew] };
           break;
         }
         case "sequential":
