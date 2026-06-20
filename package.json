@@ -6,6 +6,6 @@
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
-    "analyze": "node packages/cli/dist/index.js"
+    "analyze": "node packages/cli/dist/index.js analyze"
   }
 }
