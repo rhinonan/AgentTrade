@@ -2,8 +2,8 @@ import { AgentRegistry, registerInstances, WorkflowScheduler, createContext, set
 import { TechnicalAnalystAgent, FinancialReportAgent, JudgeAgent } from "@agenttrade/agents";
 import { DataClient } from "@agenttrade/data-client";
 import type { AnalysisTarget } from "@agenttrade/core";
-import { bullBearWorkflow } from "../../../../workflows/bull-bear.js";
-import { quickScanWorkflow } from "../../../../workflows/quick-scan.js";
+import { bullBearWorkflow } from "../workflows/bull-bear.js";
+import { quickScanWorkflow } from "../workflows/quick-scan.js";
 import { Reporter } from "../reporter.js";
 
 const WORKFLOWS: Record<string, any> = {

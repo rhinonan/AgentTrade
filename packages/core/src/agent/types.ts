@@ -4,7 +4,7 @@ export type Capability = string;
 
 export interface AgentPersona {
   stance: "bullish" | "bearish" | "neutral";
-  style?: "aggressive" | "balanced" | "conservative";
+  style?: "aggressive" | "balanced" | "conservative" | "optimistic" | "skeptical";
   description?: string;
 }
 

@@ -2,7 +2,7 @@ import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import type { AgentRegistry } from "../../agent/registry.js";
 import type { ExecutionContext, WorkflowStep } from "../types.js";
 import { addFinding, getStepFindings } from "../context.js";
-import { createLLM, parseLLMJson } from "./llm.js";
+import { createLLM, parseLLMJson, parseSentiment } from "./llm.js";
 import type { AnalyzeOptions } from "./llm.js";
 
 export async function executeCritique(
@@ -20,7 +20,9 @@ export async function executeCritique(
     throw new Error(`No findings from target step "${step.targetStep}" for critique`);
   }
 
-  const reviewerId = step.reviewer ?? step.agent?.id;
+  const agentMatch = step.agent;
+  const reviewerId = step.reviewer
+    ?? (Array.isArray(agentMatch) ? agentMatch[0]?.id : agentMatch?.id);
   if (!reviewerId) throw new Error(`Critique step "${step.id}" requires a reviewer`);
 
   const reviewer = registry.get(reviewerId);
@@ -55,7 +57,7 @@ export async function executeCritique(
     analysis = {
       conclusion: (parsed.conclusion as string) ?? "无法解析",
       confidence: Math.max(0, Math.min(1, (parsed.confidence as number) ?? 0.5)),
-      sentiment: (parsed.sentiment as string) ?? "neutral",
+      sentiment: parseSentiment(parsed.sentiment),
       reasoning: Array.isArray(parsed.reasoning) ? (parsed.reasoning as string[]) : [(parsed.reasoning as string) ?? ""],
       rawOutput: text,
     };

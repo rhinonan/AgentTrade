@@ -3,7 +3,7 @@ import type { AgentRegistry } from "../../agent/registry.js";
 import type { ExecutionContext, WorkflowStep } from "../types.js";
 import type { Analysis } from "../../agent/types.js";
 import { addFinding } from "../context.js";
-import { createLLM, parseLLMJson } from "./llm.js";
+import { createLLM, parseLLMJson, parseSentiment } from "./llm.js";
 import type { AnalyzeOptions } from "./llm.js";
 
 export async function executeAnalyze(
@@ -65,7 +65,7 @@ function parseAnalysis(text: string, _agentId: string): Analysis {
     return {
       conclusion: (parsed.conclusion as string) ?? "无法解析",
       confidence: Math.max(0, Math.min(1, (parsed.confidence as number) ?? 0.5)),
-      sentiment: (parsed.sentiment as string) ?? "neutral",
+      sentiment: parseSentiment(parsed.sentiment),
       reasoning: Array.isArray(parsed.reasoning) ? (parsed.reasoning as string[]) : [(parsed.reasoning as string) ?? ""],
       rawOutput: text,
     };

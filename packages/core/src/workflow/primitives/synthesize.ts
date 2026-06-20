@@ -2,7 +2,7 @@ import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import type { AgentRegistry } from "../../agent/registry.js";
 import type { ExecutionContext, WorkflowStep } from "../types.js";
 import { addFinding } from "../context.js";
-import { createLLM, parseLLMJson } from "./llm.js";
+import { createLLM, parseLLMJson, parseSentiment } from "./llm.js";
 import type { AnalyzeOptions } from "./llm.js";
 import type { Analysis } from "../../agent/types.js";
 
@@ -54,7 +54,7 @@ export async function executeSynthesize(
     analysis = {
       conclusion: (parsed.conclusion as string) ?? "综合研判完成",
       confidence: Math.max(0, Math.min(1, (parsed.confidence as number) ?? 0.5)),
-      sentiment: (parsed.sentiment as string) ?? "neutral",
+      sentiment: parseSentiment(parsed.sentiment),
       reasoning: Array.isArray(parsed.reasoning) ? (parsed.reasoning as string[]) : [(parsed.reasoning as string) ?? ""],
       rawOutput: text,
     };
