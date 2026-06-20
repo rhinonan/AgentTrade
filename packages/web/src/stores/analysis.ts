@@ -152,6 +152,12 @@ export const useAnalysisStore = defineStore("analysis", () => {
     addLog("system", "分析完成");
   }
 
+  function handleStepError(payload: { stepId: string; message: string }) {
+    const step = steps.value.find(s => s.id === payload.stepId);
+    if (step) step.status = "error";
+    addLog("system", `Step 错误: ${payload.message}`);
+  }
+
   function handleError(payload: { message: string }) {
     status.value = "error";
     error.value = payload.message;
@@ -165,6 +171,6 @@ export const useAnalysisStore = defineStore("analysis", () => {
   return {
     status, target, workflow, steps, logs, report, error, sessionId, stepCount, totalSteps,
     isRunning,
-    reset, handleStart, handleStepStart, handleStepComplete, handleComplete, handleError,
+    reset, handleStart, handleStepStart, handleStepComplete, handleStepError, handleComplete, handleError,
   };
 });

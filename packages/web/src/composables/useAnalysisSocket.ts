@@ -42,6 +42,10 @@ export function useAnalysisSocket() {
       store.handleComplete(payload);
     });
 
+    socket.on("step:error", (payload: any) => {
+      store.handleStepError(payload);
+    });
+
     socket.on("analysis:error", (payload: any) => {
       store.handleError(payload);
     });

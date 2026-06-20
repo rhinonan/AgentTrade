@@ -92,6 +92,15 @@ async function startAnalysis() {
 
     store.sessionId = data.sessionId;
     connectWS(data.sessionId);
+
+    // Poll fallback: if the session errored before WS connected, surface the error
+    setTimeout(async () => {
+      const statusRes = await fetch(`/api/analyze/${data.sessionId}`);
+      const statusData = await statusRes.json();
+      if (statusData.status === "error") {
+        store.handleError({ message: statusData.error ?? "分析失败" });
+      }
+    }, 500);
   } catch (err: any) {
     error.value = err.message ?? "网络错误";
     store.handleError({ message: error.value! });

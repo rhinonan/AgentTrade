@@ -27,6 +27,7 @@ interface Session {
 export class AnalyzeService {
   private readonly logger = new Logger(AnalyzeService.name);
   private sessions = new Map<string, Session>();
+  private currentStepId: string | null = null;
 
   constructor(@Inject(AnalyzeGateway) private readonly gateway: AnalyzeGateway) {}
 
@@ -40,6 +41,12 @@ export class AnalyzeService {
       this.logger.error(`Analysis ${sessionId} failed:`, err);
       session.status = "error";
       session.error = err.message;
+      if (this.currentStepId) {
+        this.gateway.sendToClient(sessionId, "step:error", {
+          stepId: this.currentStepId,
+          message: err.message,
+        });
+      }
       this.gateway.sendToClient(sessionId, "analysis:error", {
         message: err.message,
       });
@@ -101,6 +108,7 @@ export class AnalyzeService {
       { provider: dto.provider as any, modelName: dto.model },
       {
         onStepStart: (stepId, type) => {
+          this.currentStepId = stepId;
           // Determine which agents are involved in this step
           const stepDef = workflowDag.steps.find(s => s.id === stepId);
           const agentIds = this.extractAgentIds(stepDef, registry);

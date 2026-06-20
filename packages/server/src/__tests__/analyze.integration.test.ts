@@ -65,11 +65,12 @@ describe("Analyze API Integration", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ workflow: "bull-bear" }),
     });
-    // Should not crash — will fail inside async runAnalysis, but POST returns sessionId
-    // The validation doesn't require at least one of code/sector/index
-    // This is a design choice: we validate in service, not DTO
+    // DTO validation now requires at least one of code, sector, or index
+    expect(res.status).toBe(400);
     const data = await res.json();
-    expect(data.sessionId).toBeDefined();
+    expect(data.message).toBeDefined();
+    const messages = Array.isArray(data.message) ? data.message : [data.message];
+    expect(messages.some((m: string) => m.includes("Must specify at least one of"))).toBe(true);
   });
 
   it("should receive WS events after subscribing to session", async () => {

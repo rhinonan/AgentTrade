@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsIn } from "class-validator";
+import { IsOptional, IsString, IsIn, IsNotEmpty, ValidateIf } from "class-validator";
 
 export class StartAnalysisDto {
   @IsOptional()
@@ -12,6 +12,10 @@ export class StartAnalysisDto {
   @IsOptional()
   @IsString()
   index?: string;
+
+  @ValidateIf((o: StartAnalysisDto) => !o.code && !o.sector && !o.index)
+  @IsNotEmpty({ message: "Must specify at least one of: code, sector, or index" })
+  validationMarker?: string;
 
   @IsOptional()
   @IsString()
