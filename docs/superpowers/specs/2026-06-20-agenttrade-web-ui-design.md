@@ -11,8 +11,8 @@
 | 层 | 技术 |
 |---|------|
 | 前端 SPA | Vue 3 + Vite |
-| 后端 API | Node.js + Express + ws (新增 `packages/server`) |
-| 实时通信 | WebSocket (ws 库) |
+| 后端 API | NestJS (新增 `packages/server`) |
+| 实时通信 | NestJS WebSocket Gateway (`@nestjs/websockets`) |
 | 状态管理 | Pinia |
 | 核心引擎 | 复用 `@agenttrade/core` + `@agenttrade/agents` + `@agenttrade/data-client` |
 
@@ -27,23 +27,51 @@ packages/
 │       ├── stores/          — Pinia stores
 │       ├── components/      — Vue 组件
 │       └── composables/     — useWebSocket 等
-├── server/          @agenttrade/server   — Node.js WebSocket 后端
+├── server/          @agenttrade/server   — NestJS 后端
 │   └── src/
-│       ├── index.ts         — Express + WS 入口
-│       ├── ws-manager.ts    — WebSocket 连接管理
-│       └── analyze-handler.ts — 分析执行处理
+│       ├── main.ts                  — NestJS 入口 (bootstrap)
+│       ├── app.module.ts            — 根模块
+│       ├── analyze/                 — 分析模块
+│       │   ├── analyze.module.ts
+│       │   ├── analyze.controller.ts — POST /api/analyze
+│       │   ├── analyze.gateway.ts   — WebSocket Gateway (实时推送工作流进度)
+│       │   ├── analyze.service.ts   — 调 WorkflowScheduler, 管理分析会话
+│       │   └── dto/                 — 请求 DTO
+│       └── common/                  — 公共模块 (后续放 Guard, Interceptor 等)
+│           └── common.module.ts
 ├── core/            (已有)
 ├── agents/          (已有)
 ├── data-client/     (已有)
 └── cli/             (已有)
 ```
 
+## Server 架构 (NestJS)
+
+选择 NestJS 而非 Express + ws，是因为商业化方向需要快速扩展认证、会员、订阅等模块。NestJS 的模块化、依赖注入和 Guard/Interceptor 机制天然支持渐进式扩展。
+
+```
+请求 → Controller (路由) → Service (业务) → WorkflowScheduler (引擎)
+                                ↓
+                         Gateway (WebSocket) → 前端实时推送
+```
+
+**当前 MVP 模块：** `AnalyzeModule`（分析功能）
+
+**后续可无损扩展：**
+- `AuthModule` — `@UseGuards(AuthGuard)` 一行加认证
+- `UserModule` — 用户/权限管理
+- `SubscriptionModule` — 会员订阅
+- `BillingModule` — 用量计费
+- `AdminModule` — 后台管理
+
+每个新模块独立文件夹，互不干扰。Gateway 可按 namespace 拆分（`@WebSocketGateway`），分析进度、系统通知等走不同通道。
+
 ## 数据流
 
 ```
-用户输入 → POST /api/analyze → Server 创建 ExecutionContext
+用户输入 → POST /api/analyze → AnalyzeService 创建 ExecutionContext
   → WorkflowScheduler.execute() 绑定事件回调
-  → 每步通过 WebSocket 推送事件 → 前端实时更新
+  → 每步通过 AnalyzeGateway 推送 WS 事件 → 前端实时更新
   → 完成后 WS 推送完整结果 → 前端渲染报告
 ```
 
@@ -143,7 +171,7 @@ App.vue
 
 ## 测试策略
 
-- **packages/server**: vitest + supertest 测 HTTP API，mock WebSocket
+- **packages/server**: vitest + `@nestjs/testing` (TestModule) 测 Controller/Service/Gateway
 - **packages/web**: vitest + @vue/test-utils 测组件逻辑
 - 不使用 e2e 测试 — MVP 阶段手工验证
 
