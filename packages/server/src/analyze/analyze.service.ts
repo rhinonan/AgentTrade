@@ -1,4 +1,4 @@
-import { Injectable, Logger } from "@nestjs/common";
+import { Injectable, Logger, Inject } from "@nestjs/common";
 import { randomUUID } from "node:crypto";
 import {
   AgentRegistry,
@@ -28,7 +28,7 @@ export class AnalyzeService {
   private readonly logger = new Logger(AnalyzeService.name);
   private sessions = new Map<string, Session>();
 
-  constructor(private readonly gateway: AnalyzeGateway) {}
+  constructor(@Inject(AnalyzeGateway) private readonly gateway: AnalyzeGateway) {}
 
   async startAnalysis(dto: StartAnalysisDto): Promise<{ sessionId: string }> {
     const sessionId = randomUUID();
