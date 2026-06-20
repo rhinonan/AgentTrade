@@ -32,6 +32,19 @@ export interface Finding {
   rawOutput?: string;
 }
 
+/** Raw finding from server WS payload — has nested analysis wrapper */
+interface RawServerFinding {
+  step: string;
+  agent: string;
+  analysis: {
+    conclusion: string;
+    sentiment: "bullish" | "bearish" | "neutral";
+    confidence: number;
+    reasoning?: string[];
+    rawOutput?: string;
+  };
+}
+
 export interface ReportData {
   target: Target;
   workflowName: string;
@@ -109,7 +122,7 @@ export const useAnalysisStore = defineStore("analysis", () => {
     }
   }
 
-  function handleComplete(payload: { context: { target: Target; workflowName: string; findings: Finding[]; debateRounds: any[] } }) {
+  function handleComplete(payload: { context: { target: Target; workflowName: string; findings: RawServerFinding[]; debateRounds: any[] } }) {
     status.value = "complete";
     const ctx = payload.context;
     const findings = ctx.findings ?? [];
