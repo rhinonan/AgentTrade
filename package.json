@@ -6,6 +6,6 @@
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "lint": "pnpm -r lint",
-    "analyze": "pnpm --filter @agenttrade/cli exec agenttrade"
+    "analyze": "node packages/cli/dist/index.js"
   }
 }
