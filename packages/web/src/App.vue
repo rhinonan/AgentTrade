@@ -29,6 +29,7 @@ const { connect: connectWS, disconnect: disconnectWS } = useAnalysisSocket();
 
 async function startAnalysis(payload: { code?: string; sector?: string; workflow: string }) {
   store.reset();
+  store.setTargetType(payload.code ? 'stock' : 'sector');
 
   try {
     const body: Record<string, string> = {
