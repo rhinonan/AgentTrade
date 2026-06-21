@@ -151,3 +151,48 @@ function onSearch(event: { query: string }) {
   inputQuery.value = event.query;
 }
 </script>
+
+<style scoped>
+/* Force dark theme on PrimeVue components inside LandingView */
+:deep(.p-autocomplete-input),
+:deep(.p-select-label) {
+  background: var(--bg-root) !important;
+  border-color: var(--border-glass) !important;
+  color: var(--text-primary) !important;
+}
+
+:deep(.p-autocomplete-panel),
+:deep(.p-select-list-container),
+:deep(.p-select-overlay),
+:deep(.p-autocomplete-overlay) {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-glass) !important;
+}
+
+:deep(.p-select-option),
+:deep(.p-autocomplete-option) {
+  background: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+}
+
+:deep(.p-select-option:hover),
+:deep(.p-autocomplete-option:hover),
+:deep(.p-select-option.p-focus),
+:deep(.p-autocomplete-option.p-focus) {
+  background: rgba(0, 212, 255, 0.10) !important;
+  color: var(--cyan) !important;
+}
+
+:deep(.p-select-dropdown),
+:deep(.p-autocomplete-dropdown) {
+  color: var(--text-secondary) !important;
+}
+
+:deep(.p-autocomplete) {
+  width: 100%;
+}
+
+:deep(.p-select) {
+  width: 100%;
+}
+</style>
