@@ -2,7 +2,7 @@
   <div class="min-h-screen flex flex-col text-[#e8ecf2] font-sans" style="background: var(--bg-root);">
     <AppHeader />
     <main class="flex-1 flex overflow-hidden">
-      <aside class="w-84 min-w-84 border-r p-6 overflow-y-auto" style="background: var(--bg-surface-glass); border-color: var(--border-default);">
+      <aside class="w-96 min-w-96 border-r p-7 overflow-y-auto" style="background: var(--bg-surface-glass); border-color: var(--border-default);">
         <InputPanel />
       </aside>
       <section class="flex-1 flex flex-col overflow-y-auto" style="background: var(--bg-root);">
@@ -175,5 +175,15 @@ body {
 }
 @keyframes spin-ring {
   to { transform: rotate(360deg); }
+}
+@keyframes fly-from-center {
+  from {
+    opacity: 0.4;
+    transform: translateY(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 </style>
