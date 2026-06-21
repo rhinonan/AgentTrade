@@ -1,5 +1,5 @@
 <template>
-  <div class="min-h-screen flex flex-col text-[#e8ecf2] font-sans app-dark" style="background: var(--bg-root);">
+  <div class="min-h-screen flex flex-col text-[#e8ecf2] font-sans" style="background: var(--bg-root);">
     <AppHeader />
 
     <!-- Working state -->
@@ -106,9 +106,6 @@ async function startAnalysis(payload: { code?: string; sector?: string; workflow
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html, body {
-  background: var(--bg-root) !important;
-}
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   background: var(--bg-root);
@@ -193,33 +190,97 @@ body {
 ::-webkit-scrollbar-thumb { background: var(--border-default); border-radius: 3px; }
 ::-webkit-scrollbar-thumb:hover { background: var(--cyan); }
 
-/* PrimeVue dark overrides — force dark surfaces in styled mode */
-.p-autocomplete-input,
-.p-select-label,
-.p-select-list-container,
-.p-autocomplete-panel {
+/* ===== PrimeVue Full Dark Theme ===== */
+/* AutoComplete */
+.p-autocomplete { width: 100%; }
+.p-autocomplete-input {
   background: var(--bg-root) !important;
-  border-color: var(--border-glass) !important;
+  border: 1px solid var(--border-glass) !important;
   color: var(--text-primary) !important;
+  border-radius: 6px !important;
+  padding: 10px 12px !important;
+  font-size: 14px !important;
+  outline: none !important;
+  width: 100% !important;
 }
-.p-select-option,
-.p-autocomplete-option {
-  background: var(--bg-root) !important;
-  color: var(--text-primary) !important;
+.p-autocomplete-input:focus {
+  border-color: var(--cyan) !important;
+  box-shadow: var(--shadow-focus) !important;
 }
-.p-select-option:hover,
-.p-autocomplete-option:hover {
-  background: rgba(0, 212, 255, 0.08) !important;
-}
-.p-select-option.p-focus,
-.p-autocomplete-option.p-focus {
-  background: rgba(0, 212, 255, 0.12) !important;
-}
-.p-select-overlay,
+.p-autocomplete-input::placeholder { color: var(--text-muted) !important; }
+.p-autocomplete-panel,
 .p-autocomplete-overlay {
   background: var(--bg-surface) !important;
   border: 1px solid var(--border-glass) !important;
+  border-radius: 6px !important;
+  margin-top: 4px !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4) !important;
 }
+.p-autocomplete-option {
+  background: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  padding: 10px 16px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  border: none !important;
+}
+.p-autocomplete-option:hover,
+.p-autocomplete-option.p-focus {
+  background: rgba(0, 212, 255, 0.10) !important;
+  color: var(--cyan) !important;
+}
+.p-autocomplete-dropdown {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-glass) !important;
+  border-left: none !important;
+  color: var(--text-secondary) !important;
+  border-radius: 0 6px 6px 0 !important;
+}
+.p-autocomplete-dropdown:hover { color: var(--cyan) !important; }
+
+/* Select */
+.p-select { width: 100%; }
+.p-select-label {
+  background: var(--bg-root) !important;
+  border: 1px solid var(--border-glass) !important;
+  color: var(--text-primary) !important;
+  border-radius: 6px !important;
+  padding: 10px 12px !important;
+  font-size: 14px !important;
+  outline: none !important;
+  cursor: pointer !important;
+}
+.p-select-label:focus,
+.p-select-label.p-focus {
+  border-color: var(--cyan) !important;
+  box-shadow: var(--shadow-focus) !important;
+}
+.p-select-overlay,
+.p-select-list-container {
+  background: var(--bg-surface) !important;
+  border: 1px solid var(--border-glass) !important;
+  border-radius: 6px !important;
+  margin-top: 4px !important;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.4) !important;
+}
+.p-select-option {
+  background: var(--bg-surface) !important;
+  color: var(--text-primary) !important;
+  padding: 10px 16px !important;
+  cursor: pointer !important;
+  font-size: 14px !important;
+  border: none !important;
+}
+.p-select-option:hover,
+.p-select-option.p-focus,
+.p-select-option.p-highlight {
+  background: rgba(0, 212, 255, 0.10) !important;
+  color: var(--cyan) !important;
+}
+.p-select-dropdown {
+  color: var(--text-secondary) !important;
+}
+.p-select-dropdown:hover { color: var(--cyan) !important; }
 
 /* divider */
 .divider-cyan {
