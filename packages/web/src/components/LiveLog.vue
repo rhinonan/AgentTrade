@@ -9,7 +9,7 @@
     </div>
     <div
       ref="logContainer"
-      class="h-60 overflow-y-auto p-3 rounded-lg font-mono text-xs leading-relaxed relative"
+      class="h-80 overflow-y-auto p-3 rounded-lg font-mono text-xs leading-relaxed relative"
       style="background: var(--bg-root); border: 1px solid var(--border-default);"
     >
       <!-- scan line overlay -->
