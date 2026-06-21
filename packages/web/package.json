@@ -12,6 +12,7 @@
     "lint": "vue-tsc --noEmit"
   },
   "dependencies": {
+    "@primevue/themes": "^4.5.4",
     "pinia": "^2.2.0",
     "primevue": "^4.5.5",
     "socket.io-client": "^4.8.0",

@@ -30,16 +30,11 @@
           @update:model-value="onSelect"
           :suggestions="suggestions"
           option-label="name"
-          :input-style="autoCompleteInputStyle"
-          :panel-style="autoCompletePanelStyle"
-          :pt="{
-            input: { class: 'input-field', placeholder: placeholder },
-            panel: { class: 'glass-panel mt-1 max-h-64 overflow-y-auto' },
-            item: { class: 'px-4 py-2.5 cursor-pointer transition-colors hover:bg-[rgba(0,212,255,0.08)] text-sm', style: 'color: var(--text-primary);' },
-          }"
+          :placeholder="placeholder"
           @complete="onSearch"
           :delay="200"
           dropdown
+          fluid
         >
           <template #option="slotProps">
             <div class="flex items-center justify-between">
@@ -59,11 +54,7 @@
           :options="workflows"
           option-label="name"
           option-value="value"
-          :pt="{
-            input: { class: 'select-field' },
-            panel: { class: 'glass-panel mt-1' },
-            item: { class: 'px-4 py-2.5 cursor-pointer text-sm hover:bg-[rgba(0,212,255,0.08)]', style: 'color: var(--text-primary);' },
-          }"
+          fluid
         />
       </div>
 
@@ -159,7 +150,4 @@ function onSelect(value: Suggestion | null) {
 function onSearch(event: { query: string }) {
   inputQuery.value = event.query;
 }
-
-const autoCompleteInputStyle = {};
-const autoCompletePanelStyle = {};
 </script>
