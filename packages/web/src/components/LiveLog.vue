@@ -1,30 +1,36 @@
 <template>
   <div>
-    <div class="flex items-center justify-between mb-3 pb-2 border-b border-[#30363d]">
-      <h2 class="text-sm font-semibold text-[#e1e4e8]">实时输出</h2>
-      <span v-if="isRunning" class="text-xs text-[#238636] animate-pulse">● 运行中</span>
+    <div class="flex items-center justify-between mb-3 pb-2 border-b" style="border-color: var(--border-default);">
+      <h2 class="text-sm font-semibold" style="color: var(--text-primary); letter-spacing: 0.02em;">实时输出</h2>
+      <span v-if="isRunning" class="inline-flex items-center gap-1.5 text-xs" style="color: var(--cyan);">
+        <span class="inline-block w-2 h-2 rounded-full" style="background: var(--cyan); box-shadow: 0 0 6px var(--cyan); animation: glow-pulse 1.2s ease-in-out infinite;"></span>
+        运行中
+      </span>
     </div>
     <div
       ref="logContainer"
-      class="h-60 overflow-y-auto p-3 bg-[#0d1117] border border-[#30363d] rounded-lg font-mono text-xs leading-relaxed"
+      class="h-60 overflow-y-auto p-3 rounded-lg font-mono text-xs leading-relaxed relative"
+      style="background: var(--bg-root); border: 1px solid var(--border-default);"
     >
-      <div v-if="logs.length === 0" class="text-[#484f58] text-center py-5">
+      <!-- scan line overlay -->
+      <div
+        class="absolute inset-0 pointer-events-none overflow-hidden rounded-lg"
+        style="background: linear-gradient(180deg, transparent 60%, rgba(0, 212, 255, 0.015) 60.5%, transparent 61%); animation: scan-line 6s linear infinite;"
+      ></div>
+      <div v-if="logs.length === 0" class="text-center py-5" style="color: var(--text-muted);">
         等待输出...
       </div>
       <div
         v-for="(entry, index) in logs"
         :key="index"
-        class="flex gap-2 py-0.5"
+        class="flex gap-2 py-0.5 relative"
+        style="animation: fade-in 0.2s ease-out;"
       >
-        <span class="text-[#484f58] whitespace-nowrap">{{ formatTime(entry.time) }}</span>
-        <span class="text-[#58a6ff] whitespace-nowrap font-semibold">[{{ entry.agent }}]</span>
+        <span class="whitespace-nowrap" style="color: var(--text-muted);">{{ formatTime(entry.time) }}</span>
+        <span class="whitespace-nowrap font-semibold" style="color: var(--cyan);">[{{ entry.agent }}]</span>
         <span
           class="break-all"
-          :class="{
-            'text-[#3fb950]': entry.sentiment === 'bullish',
-            'text-[#f85149]': entry.sentiment === 'bearish',
-            'text-[#c9d1d9]': !entry.sentiment || entry.sentiment === 'neutral',
-          }"
+          :style="{ color: sentimentColor(entry.sentiment) }"
         >{{ entry.message }}</span>
       </div>
     </div>
@@ -54,5 +60,13 @@ watch(
 
 function formatTime(ts: number): string {
   return new Date(ts).toLocaleTimeString("zh-CN", { hour12: false });
+}
+
+function sentimentColor(sentiment?: string): string {
+  switch (sentiment) {
+    case "bullish": return "var(--teal)";
+    case "bearish": return "var(--rose)";
+    default: return "var(--text-primary)";
+  }
 }
 </script>
