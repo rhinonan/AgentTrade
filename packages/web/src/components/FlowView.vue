@@ -1,8 +1,12 @@
 <template>
-  <div class="p-5 flex flex-col gap-6 flex-1">
-    <div class="glass-panel-glow p-5">
-      <StepProgress :steps="store.steps" />
-    </div>
+  <div class="p-6 flex flex-col flex-1">
+    <!-- 流程条：轻量，无玻璃包裹 -->
+    <StepProgress :steps="store.steps" />
+
+    <!-- 分隔线：流程 → 日志 -->
+    <div class="divider-cyan my-6"></div>
+
+    <!-- 日志区：玻璃包裹 -->
     <div class="glass-panel p-5">
       <LiveLog :logs="store.logs" :is-running="store.isRunning" />
     </div>
