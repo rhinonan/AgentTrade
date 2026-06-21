@@ -1,26 +1,70 @@
 <template>
-  <div class="min-h-screen flex flex-col text-[#e8ecf2] font-sans" style="background: var(--bg-root);">
+  <div class="min-h-screen flex flex-col text-[#e8ecf2] font-sans app-dark" style="background: var(--bg-root);">
     <AppHeader />
-    <main class="flex-1 flex overflow-hidden">
-      <aside class="w-96 min-w-96 border-r p-7 overflow-y-auto" style="background: var(--bg-surface-glass); border-color: var(--border-default);">
-        <InputPanel />
-      </aside>
-      <section class="flex-1 flex flex-col overflow-y-auto" style="background: var(--bg-root);">
-        <FlowView />
-        <ReportView v-if="store.status === 'complete'" />
-      </section>
-    </main>
+
+    <!-- Working state -->
+    <template v-if="store.status !== 'idle'">
+      <AnalysisStatusBar />
+      <WorkspaceView />
+    </template>
+
+    <!-- Landing state -->
+    <LandingView
+      v-else
+      @submit="startAnalysis"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import AppHeader from "./components/AppHeader.vue";
-import InputPanel from "./components/InputPanel.vue";
-import FlowView from "./components/FlowView.vue";
-import ReportView from "./components/ReportView.vue";
+import LandingView from "./components/LandingView.vue";
+import AnalysisStatusBar from "./components/AnalysisStatusBar.vue";
+import WorkspaceView from "./components/WorkspaceView.vue";
 import { useAnalysisStore } from "@/stores/analysis";
+import { useAnalysisSocket } from "@/composables/useAnalysisSocket";
 
 const store = useAnalysisStore();
+const { connect: connectWS, disconnect: disconnectWS } = useAnalysisSocket();
+
+async function startAnalysis(payload: { code?: string; sector?: string; workflow: string }) {
+  store.reset();
+
+  try {
+    const body: Record<string, string> = {
+      workflow: payload.workflow,
+      provider: "deepseek",
+    };
+    if (payload.code) body.code = payload.code;
+    if (payload.sector) body.sector = payload.sector;
+
+    const res = await fetch("/api/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
+
+    const data = await res.json();
+    if (!res.ok) {
+      store.handleError({ message: data.message ?? "请求失败" });
+      return;
+    }
+
+    store.sessionId = data.sessionId;
+    connectWS(data.sessionId);
+
+    // Poll fallback
+    setTimeout(async () => {
+      const statusRes = await fetch(`/api/analyze/${data.sessionId}`);
+      const statusData = await statusRes.json();
+      if (statusData.status === "error") {
+        store.handleError({ message: statusData.error ?? "分析失败" });
+      }
+    }, 500);
+  } catch (err: any) {
+    store.handleError({ message: err.message ?? "网络错误" });
+  }
+}
 </script>
 
 <style>
