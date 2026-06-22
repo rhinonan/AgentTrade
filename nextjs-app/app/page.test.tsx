@@ -32,7 +32,7 @@ describe("HomePage", () => {
           json: async () => mockWorkflows,
         } as Response;
       }
-      if (url === "/api/analyze") {
+      if (url === "/api/session") {
         return {
           ok: true,
           json: async () => ({ sessionId: "test-session-123" }),
@@ -128,7 +128,7 @@ describe("HomePage", () => {
     });
   });
 
-  it("calls POST /api/analyze and redirects on start", async () => {
+  it("calls POST /api/session and redirects on start", async () => {
     renderPage();
 
     // Enter stock code
@@ -145,7 +145,7 @@ describe("HomePage", () => {
     fireEvent.click(startButton);
 
     await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledWith("/api/analyze", {
+      expect(mockFetch).toHaveBeenCalledWith("/api/session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ code: "600519", workflow: "layered" }),

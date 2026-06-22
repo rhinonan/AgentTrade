@@ -13,7 +13,7 @@ export default function HomePage() {
   async function handleStart() {
     if (!code.trim()) return;
     setLoading(true);
-    const res = await fetch("/api/analyze", {
+    const res = await fetch("/api/session", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ code: code.trim(), workflow }),

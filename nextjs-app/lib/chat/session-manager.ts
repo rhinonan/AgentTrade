@@ -100,6 +100,13 @@ export class SessionManager {
     this.repo.insert(userMsg);
     const outMessages: ChatMessage[] = [userMsg];
 
+    // If user @mentioned director, resume the session instead of pausing
+    if (allMentions.includes("director")) {
+      const resumeMsgs = await this.resumeSession(sessionId);
+      outMessages.push(...resumeMsgs);
+      return outMessages;
+    }
+
     // If user @mentioned agents, pause director and respond
     if (allMentions.length > 0) {
       director.pause();
@@ -157,6 +164,9 @@ export class SessionManager {
         outMessages.push(msg);
       },
     );
+
+    // Restart auto-advance to continue through remaining steps
+    this.startAutoAdvance(sessionId);
 
     return outMessages;
   }

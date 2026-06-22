@@ -54,14 +54,16 @@ export async function GET(
           if (currentSession && currentSession.status !== session.status) {
             session.status = currentSession.status;
             emitter.emit("status-change", { status: currentSession.status });
-          }
-          if (currentSession?.status === "STOPPED") {
-            emitter.emit("status-change", { status: "STOPPED" });
+            if (currentSession.status === "STOPPED") {
+              emitter.close();
+              clearInterval(interval);
+            }
+          } else if (currentSession?.status === "STOPPED") {
             emitter.close();
             clearInterval(interval);
           }
-        } catch {
-          /* ignore */
+        } catch (err) {
+          console.error("SSE poll error:", err);
         }
       }, 500);
 
