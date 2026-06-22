@@ -4,7 +4,7 @@ import type { WorkflowDAG } from "@/lib/engine/types.js";
 
 // ── Hoisted: create an in-memory DB for the mocked getDb ──────────────
 const { getMemDb } = vi.hoisted(() => {
-  const Database = require("better-sqlite3") as typeof import("better-sqlite3").default;
+  const Database = require("better-sqlite3") as typeof import("better-sqlite3");
   const db = new Database(":memory:");
   db.exec(`
     CREATE TABLE IF NOT EXISTS chat_messages (
@@ -63,7 +63,7 @@ const testDag: WorkflowDAG = {
   ],
 };
 
-function createNextRequest(url: string, signal?: AbortSignal): Request {
+function createNextRequest(url: string, signal?: AbortSignal): any {
   return new Request(url, signal ? { signal } : undefined);
 }
 
