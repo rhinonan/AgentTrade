@@ -9,6 +9,7 @@ export abstract class AgentBase implements BaseAgent {
   tools: StructuredTool[] = [];
   canCritique = false;
   canDebate = false;
+  systemPrompt?: string | ((context: ExecutionContext) => string);
 
   abstract analyze(context: ExecutionContext): Promise<Analysis>;
 }

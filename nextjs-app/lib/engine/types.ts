@@ -35,6 +35,9 @@ export interface BaseAgent {
   personality: AgentPersona;
   tools: StructuredTool[];
 
+  /** Optional override: a static system prompt string, or a function that returns one given context. */
+  systemPrompt?: string | ((context: ExecutionContext) => string);
+
   analyze(context: ExecutionContext): Promise<Analysis>;
 
   canCritique?: boolean;
