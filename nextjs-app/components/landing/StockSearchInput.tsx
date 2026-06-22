@@ -1,5 +1,5 @@
 "use client";
-import { useRef } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { useStockSearch } from "@/hooks/useStockSearch.js";
 import type { SearchResult } from "@/lib/data/types.js";
@@ -11,34 +11,33 @@ interface StockSearchInputProps {
 
 export function StockSearchInput({ value, onChange }: StockSearchInputProps) {
   const { results, loading, open, setOpen } = useStockSearch(value);
-  const containerRef = useRef<HTMLDivElement>(null);
-  const selectedIndexRef = useRef(-1);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
 
   function handleSelect(result: SearchResult) {
     onChange(result.symbol);
     setOpen(false);
+    setSelectedIndex(-1);
   }
 
   function handleKeyDown(e: React.KeyboardEvent) {
     if (!open || results.length === 0) return;
     if (e.key === "ArrowDown") {
       e.preventDefault();
-      selectedIndexRef.current = Math.min(selectedIndexRef.current + 1, results.length - 1);
+      setSelectedIndex(prev => Math.min(prev + 1, results.length - 1));
     } else if (e.key === "ArrowUp") {
       e.preventDefault();
-      selectedIndexRef.current = Math.max(selectedIndexRef.current - 1, 0);
-    } else if (e.key === "Enter" && selectedIndexRef.current >= 0) {
+      setSelectedIndex(prev => Math.max(prev - 1, 0));
+    } else if (e.key === "Enter" && selectedIndex >= 0) {
       e.preventDefault();
-      handleSelect(results[selectedIndexRef.current]);
-      selectedIndexRef.current = -1;
+      handleSelect(results[selectedIndex]);
     } else if (e.key === "Escape") {
       setOpen(false);
-      selectedIndexRef.current = -1;
+      setSelectedIndex(-1);
     }
   }
 
   return (
-    <div ref={containerRef} className="space-y-2 relative">
+    <div className="space-y-2 relative">
       <label className="text-sm font-medium text-zinc-400">股票代码</label>
       <div className="relative">
         <Input
@@ -63,10 +62,10 @@ export function StockSearchInput({ value, onChange }: StockSearchInputProps) {
               key={r.symbol}
               type="button"
               className={`w-full text-left px-4 py-3 hover:bg-zinc-800 transition-colors flex items-center gap-3 ${
-                i === selectedIndexRef.current ? "bg-zinc-800" : ""
+                i === selectedIndex ? "bg-zinc-800" : ""
               }`}
               onClick={() => handleSelect(r)}
-              onMouseEnter={() => { selectedIndexRef.current = i; }}
+              onMouseEnter={() => setSelectedIndex(i)}
             >
               <span className="text-emerald-400 font-mono text-sm font-medium whitespace-nowrap">
                 {r.symbol}
