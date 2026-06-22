@@ -12,11 +12,18 @@ export function useStockSearch(keyword: string): {
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const abortRef = useRef<AbortController | null>(null);
 
   useEffect(() => {
     if (timerRef.current) {
       clearTimeout(timerRef.current);
       timerRef.current = null;
+    }
+
+    // Abort any in-flight request
+    if (abortRef.current) {
+      abortRef.current.abort();
+      abortRef.current = null;
     }
 
     if (!keyword || keyword.trim().length === 0) {
@@ -27,17 +34,26 @@ export function useStockSearch(keyword: string): {
     }
 
     timerRef.current = setTimeout(async () => {
+      const controller = new AbortController();
+      abortRef.current = controller;
       setLoading(true);
       try {
-        const res = await fetch(`/api/search?keyword=${encodeURIComponent(keyword.trim())}`);
+        const res = await fetch(
+          `/api/search?keyword=${encodeURIComponent(keyword.trim())}`,
+          { signal: controller.signal }
+        );
         if (!res.ok) { setResults([]); return; }
         const data = await res.json();
         setResults(data.results ?? []);
         setOpen(true);
-      } catch {
+      } catch (err: unknown) {
+        if (err instanceof DOMException && err.name === "AbortError") return;
         setResults([]);
       } finally {
-        setLoading(false);
+        if (abortRef.current === controller) {
+          setLoading(false);
+          abortRef.current = null;
+        }
       }
     }, 300);
 
