@@ -183,6 +183,10 @@ export async function runReActLoop(options: ReActOptions): Promise<Analysis> {
   let step = 0;
 
   while (step < maxSteps) {
+    // Check cancellation between steps (in addition to pre-loop check)
+    if (signal?.aborted) {
+      throw new Error("ReAct loop cancelled");
+    }
 
     step++;
 

@@ -336,4 +336,48 @@ describe("runReActLoop", () => {
       }),
     ).rejects.toThrow("cancelled");
   });
+
+  it("cancels mid-loop when signal is aborted after first LLM call", async () => {
+    const agent = fakeAgent({
+      tools: [
+        fakeTool("slow-tool", '{"ok": true}'),
+      ] as any,
+    });
+
+    const ctx = createContext(testTarget, "测试");
+    const controller = new AbortController();
+
+    let invokeCount = 0;
+
+    await expect(
+      runReActLoop({
+        agent,
+        context: ctx,
+        prompt: "分析",
+        target: testTarget,
+        maxSteps: 5,
+        signal: controller.signal,
+        llmOptions: {
+          llm: {
+            bindTools: () => ({
+              async invoke(_msgs: unknown[]) {
+                invokeCount++;
+                // Abort after the first LLM call returns with tool_calls
+                controller.abort();
+                return new AIMessage({
+                  content: "需要数据",
+                  tool_calls: [
+                    { id: "c1", name: "slow-tool", args: { param1: "x" } },
+                  ],
+                });
+              },
+            }),
+          } as any,
+        },
+      }),
+    ).rejects.toThrow("cancelled");
+
+    // Should have made exactly 1 LLM call before checking signal and throwing
+    expect(invokeCount).toBe(1);
+  });
 });
