@@ -184,7 +184,8 @@ export class SessionManager {
         // Avoid tight loop — yield to the event loop
         await new Promise((r) => setTimeout(r, 0));
       }
-      if (e) e._advancing = false;
+      const current = this.sessions.get(sessionId);
+      if (current) current._advancing = false;
     };
 
     loop().catch((err) => {
