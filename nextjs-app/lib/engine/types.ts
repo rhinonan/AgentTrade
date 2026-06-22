@@ -24,6 +24,7 @@ export interface Analysis {
   sentiment: "bullish" | "bearish" | "neutral";
   reasoning: string[];
   rawOutput?: string;
+  forcedSummary?: boolean;  // true when ReAct loop hit maxSteps and forced a summary
 }
 
 export interface BaseAgent {
