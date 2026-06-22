@@ -1,0 +1,34 @@
+interface AgentBubbleProps {
+  agent: string;
+  conclusion: string;
+  sentiment: string;
+  confidence: number;
+  timestamp: number;
+}
+
+export function AgentBubble({
+  agent,
+  conclusion,
+  sentiment,
+  confidence,
+  timestamp,
+}: AgentBubbleProps) {
+  const sentimentColor =
+    sentiment === "bullish"
+      ? "border-l-emerald-500"
+      : sentiment === "bearish"
+        ? "border-l-red-500"
+        : "border-l-zinc-500";
+  return (
+    <div className={`bg-zinc-900 rounded-lg p-4 border-l-4 ${sentimentColor}`}>
+      <div className="flex items-center justify-between mb-2">
+        <span className="font-medium text-sm text-zinc-300">{agent}</span>
+        <span className="text-xs text-zinc-500">
+          {sentiment} · {(confidence * 100).toFixed(0)}% ·{" "}
+          {new Date(timestamp).toLocaleTimeString("zh-CN")}
+        </span>
+      </div>
+      <p className="text-zinc-400 text-sm leading-relaxed">{conclusion}</p>
+    </div>
+  );
+}
