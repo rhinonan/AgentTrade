@@ -1,6 +1,6 @@
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
 import type { AgentRegistry } from "../registry.js";
-import type { ExecutionContext, WorkflowStep, Analysis } from "../types.js";
+import type { AgentMatch, ExecutionContext, WorkflowStep, Analysis } from "../types.js";
 import { addFinding } from "../context.js";
 import { createLLM, type AnalyzeOptions } from "../../llm/create-llm.js";
 import { parseLLMJson, parseSentiment } from "../../llm/parse.js";
@@ -11,10 +11,10 @@ export async function executeAnalyze(
   context: ExecutionContext,
   options: AnalyzeOptions = {},
 ): Promise<ExecutionContext> {
-  const match = step.agent as { id?: string; capability?: string } | undefined;
+  const match: AgentMatch | undefined = Array.isArray(step.agent) ? step.agent[0] : (step.agent ?? undefined);
   if (!match) throw new Error(`Analyze step "${step.id}" requires an agent match`);
 
-  const agents = registry.match(match as any, { min: 1, max: 1 });
+  const agents = registry.match(match, { min: 1, max: 1 });
   if (agents.length === 0) {
     throw new Error(`No agent found for step "${step.id}" matching ${JSON.stringify(match)}`);
   }
