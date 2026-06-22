@@ -59,7 +59,9 @@ export async function DELETE(req: NextRequest) {
   const id = url.searchParams.get("id") || url.pathname.split("/").pop();
   if (!id) return NextResponse.json({ error: "Missing session id" }, { status: 400 });
 
-  const mgr = getSessionManager();
+  const db = getDb();
+  const sessionRepo = new SessionRepo(db);
+  const mgr = getSessionManager(undefined, sessionRepo);
   mgr.deleteSession(id);
   return NextResponse.json({ deleted: true });
 }
