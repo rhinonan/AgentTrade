@@ -1,11 +1,13 @@
-import type { WorkflowDAG, WorkflowStep, Finding, AnalysisTarget } from "../engine/types.js";
+import type { WorkflowDAG, WorkflowStep, Finding, AnalysisTarget, BaseAgent, ExecutionContext } from "../engine/types.js";
 import type { PendingMessage, SessionStatus } from "./types.js";
 import type { AnalyzeOptions } from "../llm/create-llm.js";
 import type { AgentRegistry } from "../engine/registry.js";
 import type { AgentMatch } from "../engine/types.js";
+import type { ToolDefinition } from "../tools/types.js";
 import { createLLM } from "../llm/create-llm.js";
 import { parseLLMJson, parseSentiment } from "../llm/parse.js";
 import { HumanMessage, SystemMessage } from "@langchain/core/messages";
+import { runReActLoop } from "../engine/react.js";
 
 export class Director {
   status: SessionStatus = "RUNNING";
@@ -233,6 +235,17 @@ export class Director {
     onMessage: (msg: PendingMessage) => Promise<void>,
     step?: WorkflowStep,
   ): Promise<{ conclusion: string }> {
+    // Check if agent has tools — if so, use ReAct loop
+    const agent = this.registry?.get(agentId);
+    const tools = (agent?.tools as unknown as ToolDefinition[]) ?? [];
+
+    if (tools.length > 0 && agent) {
+      return this.invokeAgentWithReAct(
+        agent, agentId, prompt, target, findings, history, onMessage, step,
+      );
+    }
+
+    // ——— Legacy path (unchanged for agents without tools) ———
     const llm = createLLM(this.options);
     const historyText = history.map((h) => `[${h.senderName}]: ${h.content}`).join("\n");
     const allFindingsText = findings
@@ -288,6 +301,79 @@ export class Director {
     }
 
     return { conclusion };
+  }
+
+  /** New method: ReAct-based agent invocation */
+  private async invokeAgentWithReAct(
+    agent: BaseAgent,
+    agentId: string,
+    prompt: string,
+    target: AnalysisTarget,
+    findings: Finding[],
+    history: { senderId: string; senderName: string; content: string }[],
+    onMessage: (msg: PendingMessage) => Promise<void>,
+    step?: WorkflowStep,
+  ): Promise<{ conclusion: string }> {
+    // Build a minimal ExecutionContext for the ReAct loop
+    const context: ExecutionContext = {
+      target,
+      task: prompt,
+      findings,
+      debateRounds: [],
+      workflowName: this.dag.name,
+      startedAt: Date.now(),
+    };
+
+    const analysis = await runReActLoop({
+      agent,
+      context,
+      prompt,
+      target,
+      maxSteps: (agent as any).maxReActSteps ?? 5,
+      llmOptions: this.options,
+      onEvent: async (event) => {
+        if (event.type === "thought") {
+          await onMessage({
+            role: "agent",
+            senderId: agentId,
+            senderName: agent?.name ?? agentId,
+            content: `💭 ${event.content.slice(0, 300)}`,
+            metadata: { type: "analysis", stepId: step?.id, isWorkflowStep: true },
+          });
+        } else if (event.type === "action") {
+          await onMessage({
+            role: "system",
+            senderId: agentId,
+            senderName: agent?.name ?? agentId,
+            content: `🔧 调用工具: ${event.toolName}(${JSON.stringify(event.params)})`,
+            metadata: { type: "analysis", stepId: step?.id, isWorkflowStep: true },
+          });
+        } else if (event.type === "observation") {
+          await onMessage({
+            role: "system",
+            senderId: agentId,
+            senderName: agent?.name ?? agentId,
+            content: `📊 ${event.toolName} 返回: ${event.result.slice(0, 200)}`,
+            metadata: { type: "analysis", stepId: step?.id, isWorkflowStep: true },
+          });
+        } else if (event.type === "final" || event.type === "forced_summary") {
+          await onMessage({
+            role: "agent",
+            senderId: agentId,
+            senderName: agent?.name ?? agentId,
+            content: event.analysis.rawOutput ?? event.analysis.conclusion,
+            metadata: {
+              type: "analysis",
+              stepId: step?.id,
+              isWorkflowStep: true,
+              analysis: event.analysis,
+            },
+          });
+        }
+      },
+    });
+
+    return { conclusion: analysis.conclusion };
   }
 
   private inferLayer(step: WorkflowStep): string | undefined {
