@@ -18,6 +18,10 @@ export function getSessionManager(repo?: ChatRepo): SessionManager {
   return _instance;
 }
 
+export function resetSessionManager(): void {
+  _instance = undefined;
+}
+
 export class SessionManager {
   private sessions = new Map<string, {
     session: ChatSession;
