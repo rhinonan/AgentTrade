@@ -35,30 +35,36 @@ export default function AnalyzePage() {
   }
 
   return (
-    <main className="relative z-10 min-h-screen flex items-center justify-center p-4">
-      <div className="w-full max-w-lg space-y-8">
-        <div className="text-center">
-          <h1 className="text-5xl font-bold tracking-tight text-blue-400 text-glow">
-            AgentTrade
-          </h1>
-          <p className="mt-3 text-zinc-500">多 Agent 对抗行情分析</p>
+    <main className="relative z-10 min-h-[calc(100vh-3.5rem)] flex flex-col md:flex-row">
+      {/* Left: Recent history */}
+      <aside className="md:w-[40%] lg:w-[35%] border-b md:border-b-0 md:border-r border-zinc-800 p-4 md:p-6 overflow-y-auto max-h-[50vh] md:max-h-[calc(100vh-3.5rem)]">
+        <div className="space-y-3">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-medium text-zinc-400">历史记录</h2>
+          </div>
+          <RecentAnalyses />
         </div>
-        <div className="space-y-6 bg-zinc-900/50 border border-zinc-800 rounded-xl p-6">
-          <StockSearchInput value={code} onChange={setCode} />
-          <WorkflowSelector selected={workflow} onSelect={setWorkflow} />
-          {error && (
-            <p className="text-sm text-red-400 text-center">{error}</p>
-          )}
-          <button
-            onClick={handleStart}
-            disabled={!code.trim() || loading}
-            className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white font-medium transition-colors"
-          >
-            {loading ? "启动中..." : "开始分析"}
-          </button>
+      </aside>
+
+      {/* Right: Input form */}
+      <section className="flex-1 flex items-start justify-center p-4 md:p-8 md:pt-12">
+        <div className="w-full max-w-lg space-y-6">
+          <div className="space-y-6 bg-zinc-900/50 border border-zinc-800 rounded-xl p-6">
+            <StockSearchInput value={code} onChange={setCode} />
+            <WorkflowSelector selected={workflow} onSelect={setWorkflow} />
+            {error && (
+              <p className="text-sm text-red-400 text-center">{error}</p>
+            )}
+            <button
+              onClick={handleStart}
+              disabled={!code.trim() || loading}
+              className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white font-medium transition-colors"
+            >
+              {loading ? "启动中..." : "开始分析"}
+            </button>
+          </div>
         </div>
-        <RecentAnalyses />
-      </div>
+      </section>
     </main>
   );
 }

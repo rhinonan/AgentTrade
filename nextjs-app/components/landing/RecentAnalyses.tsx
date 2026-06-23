@@ -48,7 +48,9 @@ export function RecentAnalyses() {
       </div>
     );
   }
-  if (sessions.length === 0) return null;
+  if (sessions.length === 0) return (
+    <p className="text-sm text-zinc-600 text-center py-8">暂无分析记录</p>
+  );
 
   function formatDate(ts: number): string {
     const d = new Date(ts);
@@ -56,17 +58,7 @@ export function RecentAnalyses() {
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium text-zinc-400">最近分析</h3>
-        <button
-          onClick={() => router.push("/history")}
-          className="text-xs text-blue-500 hover:text-blue-400 transition-colors"
-        >
-          查看全部 →
-        </button>
-      </div>
-      <div className="space-y-2">
+    <div className="space-y-2">
         {sessions.map((s) => {
           const style = STATUS_STYLES[s.status] ?? STATUS_STYLES.STOPPED;
           return (
@@ -96,6 +88,5 @@ export function RecentAnalyses() {
           );
         })}
       </div>
-    </div>
   );
 }
