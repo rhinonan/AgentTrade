@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import { TopNav } from "@/components/layout/TopNav.js";
 
 export const metadata: Metadata = {
   title: "AgentTrade",
@@ -14,6 +15,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body className="min-h-screen bg-zinc-950 text-zinc-100 antialiased">
+        <TopNav />
         {children}
       </body>
     </html>
