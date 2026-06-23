@@ -1,0 +1,57 @@
+name: layered
+description: 分层深度分析 — 感知层→分析层→决策层→执行层
+version: "1.0"
+
+nodes:
+  # Layer 1: Perception
+  - id: perception_market
+    agent: market-data
+    prompt: 获取 {{target}} 的行情数据。
+
+  - id: perception_macro
+    agent: macro-data
+    prompt: 获取与 {{target}} 行业相关的宏观数据。
+
+  - id: perception_flow
+    agent: capital-flow
+    prompt: 获取 {{target}} 的资金流向数据。
+
+  # Layer 2: Analysis
+  - id: analysis_tech
+    agent: tech-analyst
+    depends_on: [perception_market]
+    prompt: 基于行情数据分析 {{target}} 的技术面。
+
+  - id: analysis_fin
+    agent: financial-analyst
+    depends_on: [perception_market, perception_macro]
+    prompt: 基于财务和宏观数据，分析 {{target}} 的基本面。
+
+  - id: analysis_valuation
+    agent: valuation
+    depends_on: [analysis_fin]
+    prompt: 基于基本面分析，评估 {{target}} 的估值合理性。
+
+  # Layer 3: Decision
+  - id: decision_quant
+    agent: quant-analyst
+    depends_on: [analysis_tech, analysis_valuation]
+    prompt: 综合技术和估值分析，对 {{target}} 进行量化打分。
+
+  - id: decision_risk
+    agent: risk-ctrl
+    depends_on: [perception_market, perception_flow, analysis_fin]
+    prompt: 评估 {{target}} 的风险水平。
+
+  # Layer 4: Judgment
+  - id: judge
+    agent: judge
+    depends_on: [decision_quant, decision_risk, perception_flow]
+    prompt: |
+      综合各层分析，对 {{target}} 做出最终研判。
+
+      量化分析：{{state.decision_quant}}
+      风险评估：{{state.decision_risk}}
+      资金流向：{{state.perception_flow}}
+
+      给出操作建议、仓位建议和关键风险提示。

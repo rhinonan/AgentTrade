@@ -1,0 +1,23 @@
+name: quick-scan
+description: 快速扫描 — 市场数据和舆情并行感知，直接给出综合判断
+version: "1.0"
+
+nodes:
+  - id: market
+    agent: market-data
+    prompt: 获取 {{target}} 的最新行情数据，总结关键价格和成交量特征。
+
+  - id: sentiment
+    agent: sentiment
+    prompt: 搜集 {{target}} 的最新舆情和新闻，总结市场情绪。
+
+  - id: judge
+    agent: judge
+    depends_on: [market, sentiment]
+    prompt: |
+      基于以下快速扫描结果，对 {{target}} 给出初步判断。
+
+      行情数据：{{state.market}}
+      市场情绪：{{state.sentiment}}
+
+      给出简短的研判和建议。
