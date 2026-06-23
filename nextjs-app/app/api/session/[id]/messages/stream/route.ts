@@ -14,7 +14,7 @@ export async function GET(
   const { id: sessionId } = await params;
   const db = getDb();
   const repo = new ChatRepo(db);
-  const mgr = getSessionManager();
+  const mgr = getSessionManager(repo);
 
   const session = mgr.getSession(sessionId);
   if (!session) {
