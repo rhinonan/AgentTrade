@@ -82,27 +82,27 @@ async function runAnalysis(
   const io = getSocketIO();
   const ns = io.of("/analysis");
 
-  if (dto.provider) {
-    setDefaultLLMProvider(dto.provider as "anthropic" | "openai" | "deepseek");
-  }
-
-  const workflowDag = WORKFLOWS[dto.workflow ?? "bull-bear"];
-  if (!workflowDag) throw new Error(`Unknown workflow: ${dto.workflow}`);
-
-  const target = await resolveTarget(dto);
-
-  ns.to(sessionId).emit(WS_EVENTS.ANALYSIS_START, {
-    target: { type: target.type, code: target.code, name: target.name },
-    workflow: dto.workflow ?? "bull-bear",
-  });
-
-  const registry = new AgentRegistry();
-  registerBuiltinAgents(registry);
-
-  const scheduler = new WorkflowScheduler(registry);
-  const context = createContext(target, `对${target.name ?? target.code}进行分析`, dto.workflow ?? "bull-bear");
-
   try {
+    if (dto.provider) {
+      setDefaultLLMProvider(dto.provider as "anthropic" | "openai" | "deepseek");
+    }
+
+    const workflowDag = WORKFLOWS[dto.workflow ?? "bull-bear"];
+    if (!workflowDag) throw new Error(`Unknown workflow: ${dto.workflow}`);
+
+    const target = await resolveTarget(dto);
+
+    ns.to(sessionId).emit(WS_EVENTS.ANALYSIS_START, {
+      target: { type: target.type, code: target.code, name: target.name },
+      workflow: dto.workflow ?? "bull-bear",
+    });
+
+    const registry = new AgentRegistry();
+    registerBuiltinAgents(registry);
+
+    const scheduler = new WorkflowScheduler(registry);
+    const context = createContext(target, `对${target.name ?? target.code}进行分析`, dto.workflow ?? "bull-bear");
+
     const result = await scheduler.execute(workflowDag, context, {
       provider: dto.provider as any,
       modelName: dto.model,
@@ -154,7 +154,7 @@ async function runAnalysis(
       },
     });
   } catch (err) {
-    // 失败 — 退还配额
+    // 失败 — 退还配额（涵盖 resolveTarget / workflow 校验 / scheduler 等所有早期失败）
     console.error(`Analysis ${sessionId} failed:`, err);
     if (quotaHook) {
       quotaHook.release(dto.userId).catch(e =>
