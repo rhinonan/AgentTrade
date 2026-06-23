@@ -38,7 +38,7 @@ export default function AnalyzePage() {
     <main className="relative z-10 min-h-screen flex items-center justify-center p-4">
       <div className="w-full max-w-lg space-y-8">
         <div className="text-center">
-          <h1 className="text-5xl font-bold tracking-tight text-emerald-400 text-glow">
+          <h1 className="text-5xl font-bold tracking-tight text-blue-400 text-glow">
             AgentTrade
           </h1>
           <p className="mt-3 text-zinc-500">多 Agent 对抗行情分析</p>
@@ -52,7 +52,7 @@ export default function AnalyzePage() {
           <button
             onClick={handleStart}
             disabled={!code.trim() || loading}
-            className="w-full py-3 rounded-lg bg-emerald-600 hover:bg-emerald-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white font-medium transition-colors"
+            className="w-full py-3 rounded-lg bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white font-medium transition-colors"
           >
             {loading ? "启动中..." : "开始分析"}
           </button>

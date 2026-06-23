@@ -37,7 +37,7 @@ export function ChatPanel({ sessionId, agents }: ChatPanelProps) {
       <div className="border-b border-zinc-800 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <span className={`w-2 h-2 rounded-full ${
-            status === "RUNNING" ? "bg-emerald-400 animate-pulse"
+            status === "RUNNING" ? "bg-blue-400 animate-pulse"
             : status === "PAUSED" ? "bg-amber-400"
             : "bg-zinc-500"
           }`} />
@@ -50,7 +50,7 @@ export function ChatPanel({ sessionId, agents }: ChatPanelProps) {
         {isPaused && (
           <button
             onClick={resumeSession}
-            className="px-3 py-1.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm rounded-lg transition-colors"
+            className="px-3 py-1.5 bg-blue-600 hover:bg-blue-500 text-white text-sm rounded-lg transition-colors"
           >
             继续分析
           </button>

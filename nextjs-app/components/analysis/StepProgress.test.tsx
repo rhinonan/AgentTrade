@@ -22,13 +22,13 @@ describe("StepProgress", () => {
     expect(div?.className).toContain("flex");
   });
 
-  it("applies emerald-500 background for complete steps", () => {
+  it("applies blue-500 background for complete steps", () => {
     const steps = [
       { stepId: "1", type: "analyze", status: "complete" as const },
     ];
     const { container } = render(<StepProgress steps={steps} />);
     const indicator = container.querySelector(".rounded-full");
-    expect(indicator?.className).toContain("bg-emerald-500");
+    expect(indicator?.className).toContain("bg-blue-500");
   });
 
   it("applies amber-400 background for running steps", () => {

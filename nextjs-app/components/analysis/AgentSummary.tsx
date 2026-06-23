@@ -7,7 +7,7 @@ interface AgentSummaryProps {
 }
 
 const SENTIMENT_STYLE: Record<AgentConclusion["sentiment"], string> = {
-  bullish: "border-l-emerald-500",
+  bullish: "border-l-blue-500",
   bearish: "border-l-red-500",
   neutral: "border-l-zinc-500",
 };
@@ -46,8 +46,8 @@ export function AgentSummary({ agents, finalConclusion }: AgentSummaryProps) {
         ))}
       </div>
       {finalConclusion && (
-        <div className="border-b-2 border-emerald-500 pb-3">
-          <p className="text-sm text-emerald-300 leading-relaxed">
+        <div className="border-b-2 border-blue-500 pb-3">
+          <p className="text-sm text-blue-300 leading-relaxed">
             {finalConclusion}
           </p>
         </div>

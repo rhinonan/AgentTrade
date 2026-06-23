@@ -12,7 +12,7 @@ export function AnalysisHeader({ target, workflow, status }: AnalysisHeaderProps
   };
   const statusColor: Record<string, string> = {
     running: "text-amber-400",
-    complete: "text-emerald-400",
+    complete: "text-blue-400",
     error: "text-red-400",
   };
   return (

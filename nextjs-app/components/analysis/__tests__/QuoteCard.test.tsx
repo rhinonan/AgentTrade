@@ -44,7 +44,7 @@ describe("QuoteCard", () => {
     render(<QuoteCard code="600519" />);
     await vi.waitFor(() => {
       const changeEl = screen.getByText(/\+12\.30/);
-      expect(changeEl.className).toMatch(/red|rose|emerald/);
+      expect(changeEl.className).toMatch(/red|rose|blue/);
     });
   });
 

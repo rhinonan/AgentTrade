@@ -27,10 +27,10 @@ describe("AgentBubble", () => {
     expect(screen.getByText(/85%/)).toBeDefined();
   });
 
-  it("applies emerald left border for bullish sentiment", () => {
+  it("applies blue left border for bullish sentiment", () => {
     const { container } = render(<AgentBubble {...baseProps} />);
     const card = container.firstChild as HTMLElement;
-    expect(card.className).toContain("border-l-emerald-500");
+    expect(card.className).toContain("border-l-blue-500");
   });
 
   it("applies red left border for bearish sentiment", () => {

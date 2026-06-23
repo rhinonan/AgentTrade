@@ -30,14 +30,14 @@ export function MessageBubble({
 
   const sentiment = analysis?.sentiment ?? "neutral";
   const sentimentBorderColor =
-    sentiment === "bullish" ? "border-l-emerald-500"
+    sentiment === "bullish" ? "border-l-blue-500"
     : sentiment === "bearish" ? "border-l-red-500"
     : "border-l-zinc-500";
 
   if (isUser) {
     return (
       <div className="flex justify-end mb-4">
-        <div className="max-w-[75%] bg-emerald-600/20 border border-emerald-700/40 rounded-2xl rounded-br-sm px-4 py-2.5">
+        <div className="max-w-[75%] bg-blue-600/20 border border-blue-700/40 rounded-2xl rounded-br-sm px-4 py-2.5">
           <p className="text-sm text-zinc-200 whitespace-pre-wrap">{content}</p>
           <span className="text-[10px] text-zinc-500 mt-1 block">
             {new Date(timestamp).toLocaleTimeString("zh-CN")}
@@ -53,7 +53,7 @@ export function MessageBubble({
         className={`max-w-[80%] bg-zinc-900 rounded-xl border-l-4 ${sentimentBorderColor} px-4 py-3`}
       >
         <div className="flex items-center gap-2 mb-1.5">
-          <span className="text-xs font-medium text-emerald-400">{senderName}</span>
+          <span className="text-xs font-medium text-blue-400">{senderName}</span>
           <span className="text-[10px] text-zinc-600">
             {new Date(timestamp).toLocaleTimeString("zh-CN")}
           </span>

@@ -29,7 +29,7 @@ describe("AgentSummary", () => {
   it("shows sentiment colors via border", () => {
     render(<AgentSummary agents={MOCK_AGENTS} />);
     const bullishEl = screen.getByText("牛方技术分析师").closest("div");
-    expect(bullishEl?.parentElement?.className).toMatch(/emerald/);
+    expect(bullishEl?.parentElement?.className).toMatch(/blue/);
     const bearishEl = screen.getByText("熊方技术分析师").closest("div");
     expect(bearishEl?.parentElement?.className).toMatch(/red/);
   });

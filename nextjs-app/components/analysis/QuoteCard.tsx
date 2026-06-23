@@ -50,14 +50,14 @@ export function QuoteCard({ code, name }: QuoteCardProps) {
   }, [code]);
 
   const isUp = quote && quote.change >= 0;
-  const changeColor = isUp ? "text-red-400" : "text-emerald-400";
+  const changeColor = isUp ? "text-red-400" : "text-blue-400";
 
   return (
     <div className="bg-zinc-900/60 border border-zinc-800 rounded-xl p-4 space-y-3">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <span className="font-mono text-sm font-medium text-emerald-400">
+          <span className="font-mono text-sm font-medium text-blue-400">
             {code}
           </span>
           {name && (

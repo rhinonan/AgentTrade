@@ -12,7 +12,7 @@ interface SessionSummary {
 }
 
 const STATUS_STYLES: Record<string, { dot: string; label: string; text: string }> = {
-  RUNNING:  { dot: "bg-emerald-400 animate-pulse", label: "进行中", text: "text-emerald-400" },
+  RUNNING:  { dot: "bg-blue-400 animate-pulse", label: "进行中", text: "text-blue-400" },
   PAUSED:   { dot: "bg-amber-400", label: "已暂停", text: "text-amber-400" },
   STOPPED:  { dot: "bg-zinc-500", label: "已完成", text: "text-zinc-400" },
 };
@@ -71,7 +71,7 @@ export default function HistoryPage() {
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="font-mono text-sm text-emerald-400">{s.targetCode}</span>
+                      <span className="font-mono text-sm text-blue-400">{s.targetCode}</span>
                       {s.targetName && (
                         <span className="text-sm text-zinc-300">{s.targetName}</span>
                       )}

@@ -25,7 +25,7 @@ export default function HomePage() {
     <div className="relative z-10 min-h-screen flex flex-col">
       {/* ── Hero ── */}
       <section className="flex-1 flex flex-col items-center justify-center px-4 pt-24 pb-12">
-        <h1 className="text-6xl font-bold tracking-tight text-emerald-400 text-glow">
+        <h1 className="text-6xl font-bold tracking-tight text-blue-400 text-glow">
           AgentTrade
         </h1>
         <p className="mt-4 text-xl text-zinc-300 font-medium">
@@ -37,10 +37,10 @@ export default function HomePage() {
         </p>
         <Link
           href="/analyze"
-          className="mt-8 inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-lg transition-colors shadow-lg shadow-emerald-600/20"
+          className="mt-8 inline-flex items-center gap-2 px-8 py-3.5 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-semibold text-lg transition-colors shadow-lg shadow-blue-600/20"
         >
           开始分析
-          <span className="text-emerald-200">→</span>
+          <span className="text-blue-200">→</span>
         </Link>
       </section>
 

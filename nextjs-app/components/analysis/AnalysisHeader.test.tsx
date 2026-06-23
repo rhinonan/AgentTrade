@@ -57,7 +57,7 @@ describe("AnalysisHeader", () => {
     expect(statusEl.className).toContain("text-amber-400");
   });
 
-  it("renders complete status with emerald color", () => {
+  it("renders complete status with blue color", () => {
     render(
       <AnalysisHeader
         target={baseTarget}
@@ -67,7 +67,7 @@ describe("AnalysisHeader", () => {
     );
     const statusEl = screen.getByText("已完成");
     expect(statusEl).toBeDefined();
-    expect(statusEl.className).toContain("text-emerald-400");
+    expect(statusEl.className).toContain("text-blue-400");
   });
 
   it("renders error status with red color", () => {

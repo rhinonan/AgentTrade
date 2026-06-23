@@ -22,7 +22,7 @@ function rsiLabel(rsi: number): string {
 
 function rsiColor(rsi: number): string {
   if (rsi >= 70) return "text-red-400";
-  if (rsi <= 30) return "text-emerald-400";
+  if (rsi <= 30) return "text-blue-400";
   return "text-zinc-300";
 }
 
@@ -98,7 +98,7 @@ export function IndicatorList({ indicators }: IndicatorListProps) {
                   className={`text-sm tabular-nums font-mono ${
                     indicators.macd.histogram >= 0
                       ? "text-red-400"
-                      : "text-emerald-400"
+                      : "text-blue-400"
                   }`}
                 >
                   {indicators.macd.histogram.toFixed(4)}

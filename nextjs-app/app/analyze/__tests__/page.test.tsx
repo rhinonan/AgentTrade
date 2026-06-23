@@ -98,7 +98,7 @@ describe("AnalyzePage", () => {
 
     // After clicking, quick-scan should have the selected border class
     await waitFor(() => {
-      expect(quickScanButton!.className).toContain("border-emerald-500");
+      expect(quickScanButton!.className).toContain("border-blue-500");
     });
   });
 

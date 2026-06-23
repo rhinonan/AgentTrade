@@ -15,7 +15,7 @@ interface StructuredAnalysisProps {
 }
 
 const sentimentStyles: Record<string, string> = {
-  bullish: "text-emerald-400 bg-emerald-950/40 border-emerald-500/30",
+  bullish: "text-blue-400 bg-blue-950/40 border-blue-500/30",
   bearish: "text-red-400 bg-red-950/40 border-red-500/30",
   neutral: "text-zinc-300 bg-zinc-800 border-zinc-600/30",
 };

@@ -48,7 +48,7 @@ export function ChatInput({ agents, onSend, disabled }: ChatInputProps) {
           {selectedAgents.map(id => {
             const agent = agents.find(a => a.id === id);
             return (
-              <span key={id} className="text-[10px] bg-emerald-900/50 text-emerald-300 px-2 py-0.5 rounded-full flex items-center gap-1">
+              <span key={id} className="text-[10px] bg-blue-900/50 text-blue-300 px-2 py-0.5 rounded-full flex items-center gap-1">
                 @{agent?.name ?? id}
                 <button onClick={() => toggleAgent(id)} className="hover:text-white">×</button>
               </span>
@@ -91,7 +91,7 @@ export function ChatInput({ agents, onSend, disabled }: ChatInputProps) {
         <button
           onClick={handleSend}
           disabled={disabled || !value.trim()}
-          className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white text-sm font-medium rounded-lg transition-colors"
+          className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 disabled:bg-zinc-700 disabled:text-zinc-500 text-white text-sm font-medium rounded-lg transition-colors"
         >
           发送
         </button>

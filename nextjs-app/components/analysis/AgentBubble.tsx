@@ -15,7 +15,7 @@ export function AgentBubble({
 }: AgentBubbleProps) {
   const sentimentColor =
     sentiment === "bullish"
-      ? "border-l-emerald-500"
+      ? "border-l-blue-500"
       : sentiment === "bearish"
         ? "border-l-red-500"
         : "border-l-zinc-500";

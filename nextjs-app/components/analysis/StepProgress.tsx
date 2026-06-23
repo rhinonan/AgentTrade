@@ -12,7 +12,7 @@ export function StepProgress({ steps }: { steps: StepState[] }) {
           <div
             className={`w-3 h-3 rounded-full ${
               step.status === "complete"
-                ? "bg-emerald-500"
+                ? "bg-blue-500"
                 : step.status === "running"
                   ? "bg-amber-400 animate-pulse"
                   : "bg-zinc-700"
