@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import HomePage from "./page";
+import AnalyzePage from "../page";
 
 // Mock next/navigation
 const mockPush = vi.fn();
@@ -18,11 +18,11 @@ const mockWorkflows = [
 ];
 
 function renderPage() {
-  const result = render(<HomePage />);
+  const result = render(<AnalyzePage />);
   return result;
 }
 
-describe("HomePage", () => {
+describe("AnalyzePage", () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockFetch.mockImplementation(async (url: string) => {
