@@ -1,30 +1,35 @@
+"use client";
 import { AgentBubble } from "./AgentBubble";
+import type { AgentStream } from "@/hooks/useAnalysisSocket";
 
-interface Finding {
-  agent: string;
-  conclusion: string;
-  sentiment: string;
-  confidence: number;
-  step: string;
-  timestamp: number;
+interface LiveDebatePanelProps {
+  agentStreams: Map<string, AgentStream>;
+  /** Whether the analysis is still running (to show conn status). */
+  isRunning?: boolean;
 }
 
-export function LiveDebatePanel({ findings }: { findings: Finding[] }) {
+export function LiveDebatePanel({
+  agentStreams,
+  isRunning,
+}: LiveDebatePanelProps) {
+  const entries = Array.from(agentStreams.values());
+
   return (
     <div className="space-y-3 py-4">
-      {findings.length === 0 && (
+      {entries.length === 0 && isRunning && (
         <p className="text-zinc-600 text-center py-8">
           等待 Agent 分析结果...
         </p>
       )}
-      {findings.map((f, i) => (
+      {entries.length === 0 && !isRunning && (
+        <p className="text-zinc-600 text-center py-8">
+          暂无分析数据
+        </p>
+      )}
+      {entries.map((stream) => (
         <AgentBubble
-          key={`${f.step}-${f.agent}-${i}`}
-          agent={f.agent}
-          conclusion={f.conclusion}
-          sentiment={f.sentiment}
-          confidence={f.confidence}
-          timestamp={f.timestamp}
+          key={stream.nodeId}
+          stream={stream}
         />
       ))}
     </div>
