@@ -19,7 +19,7 @@ system_prompt: |
   - 散户 vs 机构情绪分化
 
 tools:
-  - news
+  - get-news
   - social_sentiment
 
 output_schema:

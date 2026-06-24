@@ -55,9 +55,9 @@ describe("runWorkflow", () => {
       }),
     });
 
-    // Findings are keyed by agent ID, not node ID (buildAgentNode uses compiled.id)
-    expect(result.findings).toHaveProperty("qa");
-    const askOutput = result.findings.qa as Record<string, unknown>;
+    // Findings are keyed by node ID
+    expect(result.findings).toHaveProperty("ask");
+    const askOutput = result.findings.ask as Record<string, unknown>;
     expect(askOutput.conclusion).toBe("买");
     expect(askOutput.confidence).toBe(0.87);
     expect(askOutput.sentiment).toBe("bullish");

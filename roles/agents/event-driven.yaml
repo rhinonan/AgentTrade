@@ -20,8 +20,8 @@ system_prompt: |
   - 识别黑天鹅事件的潜在风险
 
 tools:
-  - news
-  - announcement
+  - get-news
+  - get-announcement
 
 output_schema:
   conclusion:

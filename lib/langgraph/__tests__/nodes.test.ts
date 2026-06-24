@@ -39,8 +39,8 @@ describe("agentNode", () => {
     };
 
     const { buildAgentNode } = await import("../nodes.js");
-    // buildAgentNode(compiled, taskPrompt, llmFactory, dataClient)
-    const node = buildAgentNode(compiled, "分析", () => fakeLLM, {} as any);
+    // buildAgentNode(compiled, taskPrompt, llmFactory, dataClient, nodeId)
+    const node = buildAgentNode(compiled, "分析", () => fakeLLM, {} as any, "test-agent");
 
     const state = {
       target: "000001",
@@ -80,7 +80,7 @@ describe("checkYieldNode", () => {
 
     const result = await node(state);
     expect(result.should_stop).toBe(true);
-    expect(result.total_rounds).toBe(1);
+    expect(result.total_rounds).toBe(2);
   });
 
   it("does not stop if no participant yields", async () => {

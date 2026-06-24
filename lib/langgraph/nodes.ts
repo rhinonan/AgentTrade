@@ -253,7 +253,7 @@ export function buildAgentNode(
       return {
         findings: {
           ...state.findings,
-          [compiled.id]: parsed,
+          [nodeId]: parsed,
         },
       };
     }
@@ -347,7 +347,7 @@ export function buildAgentNode(
     return {
       findings: {
         ...state.findings,
-        [compiled.id]: parsed,
+        [nodeId]: parsed,
       },
     };
   };
@@ -387,7 +387,7 @@ export function buildCheckYieldNode(
     return {
       should_stop: shouldStop,
       stop_reason: shouldStop ? "yield" : "",
-      total_rounds: state.round,
+      total_rounds: state.round + 1,
     };
   };
 }
