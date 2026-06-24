@@ -1,7 +1,7 @@
 "use client";
 
 const WORKFLOW_OPTIONS = [
-  { value: "bull-bear", label: "牛熊对抗", description: "Bull vs Bear 对抗分析" },
+  { value: "earnings-debate", label: "财报多空对决", description: "财报深度多空自由辩论" },
   { value: "quick-scan", label: "快速扫描", description: "快速技术面+基本面扫描" },
   { value: "layered", label: "四层深度分析", description: "四层对抗分析：感知→分析→决策→执行风控" },
 ];

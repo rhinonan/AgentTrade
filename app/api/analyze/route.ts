@@ -12,7 +12,7 @@ import { runWorkflow, loadWorkflowYaml, ensureAgentsLoaded } from "@/lib/langgra
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { code, sector, index, workflow = "bull-bear", provider = "deepseek", model } = body;
+  const { code, sector, index, workflow = "earnings-debate", provider = "deepseek", model } = body;
 
   if (!code && !sector && !index) {
     return NextResponse.json({ error: "Must specify code, sector, or index" }, { status: 400 });
@@ -90,7 +90,7 @@ async function runAnalysis(
 
     ns.to(sessionId).emit(WS_EVENTS.ANALYSIS_START, {
       target: { type: target.type, code: target.code, name: target.name },
-      workflow: dto.workflow ?? "bull-bear",
+      workflow: dto.workflow ?? "earnings-debate",
     });
 
     // ── Load user-uploaded roles from DB ────────────────────────────
@@ -100,7 +100,7 @@ async function runAnalysis(
     }
 
     // ── LangGraph engine: YAML workflow → LangGraph runner ──
-    const workflowYaml = await loadWorkflowYaml(dto.workflow ?? "bull-bear");
+    const workflowYaml = await loadWorkflowYaml(dto.workflow ?? "earnings-debate");
 
     // Build lookup: nodeId → node config (agent name, type)
     const nodeMap = new Map<string, (typeof workflowYaml.nodes)[number]>();
@@ -191,7 +191,7 @@ async function runAnalysis(
       status: "complete",
       context: JSON.stringify({
         target,
-        workflowName: dto.workflow ?? "bull-bear",
+        workflowName: dto.workflow ?? "earnings-debate",
         findings: langGraphResult.findings,
         debateRounds: [],
       }),
@@ -200,7 +200,7 @@ async function runAnalysis(
     ns.to(sessionId).emit(WS_EVENTS.ANALYSIS_COMPLETE, {
       context: {
         target,
-        workflowName: dto.workflow ?? "bull-bear",
+        workflowName: dto.workflow ?? "earnings-debate",
         findings: Object.entries(langGraphResult.findings).map(([nodeId, value]) => {
           const v = value as Record<string, unknown> | undefined;
           return {

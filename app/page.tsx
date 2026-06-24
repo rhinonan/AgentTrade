@@ -2,14 +2,14 @@ import Link from "next/link";
 
 const FEATURES = [
   {
-    icon: "🐂🐻",
+    icon: "📈📉",
     title: "多 Agent 对抗",
     desc: "Bull / Bear / Advisor 三方独立分析辩论，减少单模型偏见，输出更客观的研判结论",
   },
   {
     icon: "⚡",
     title: "多工作流模式",
-    desc: "快速扫描 / 牛熊对抗 / 四层深度分析，根据场景灵活选择分析深度",
+    desc: "快速扫描 / 财报多空对决 / 四层深度分析，根据场景灵活选择分析深度",
   },
   {
     icon: "📊",
