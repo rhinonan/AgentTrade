@@ -8,6 +8,9 @@ import { normalizeCode, fetchWithTimeout } from "../utils.js";
 const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36";
 const THS_BASE = "https://basic.10jqka.com.cn";
 
+interface RawHotStockItem { code?: string; stockCode?: string; name?: string; stockName?: string; reason?: string; theme?: string; changePct?: number; rise?: number; limitUpTimes?: number; boardNum?: number; }
+interface RawNorthBoundItem { time?: string; minute?: string; hgtBuy?: number; shBuy?: number; hgtSell?: number; shSell?: number; sgtBuy?: number; szBuy?: number; sgtSell?: number; szSell?: number; }
+
 export class THSProvider {
   private timeout: number;
 
@@ -24,7 +27,7 @@ export class THSProvider {
 
       const d = await res.json();
       const list = d?.data ?? d?.result ?? [];
-      const items: HotStock[] = (Array.isArray(list) ? list : []).map((s: any) => ({
+      const items: HotStock[] = (Array.isArray(list) ? list : []).map((s: RawHotStockItem) => ({
         symbol: normalizeCode(s.code ?? s.stockCode ?? ""),
         name: s.name ?? s.stockName ?? "",
         reason: s.reason ?? s.theme ?? "",
@@ -46,14 +49,20 @@ export class THSProvider {
 
       const d = await res.json();
       const list = d?.data ?? d?.result ?? [];
-      const items: NorthBoundFlow[] = (Array.isArray(list) ? list : []).map((f: any) => ({
-        time: f.time ?? f.minute ?? "",
-        hgtBuy: f.hgtBuy ?? f.shBuy ?? 0,
-        hgtSell: f.hgtSell ?? f.shSell ?? 0,
-        sgtBuy: f.sgtBuy ?? f.szBuy ?? 0,
-        sgtSell: f.sgtSell ?? f.szSell ?? 0,
-        netFlow: (f.hgtBuy ?? 0) - (f.hgtSell ?? 0) + (f.sgtBuy ?? 0) - (f.sgtSell ?? 0),
-      }));
+      const items: NorthBoundFlow[] = (Array.isArray(list) ? list : []).map((f: RawNorthBoundItem) => {
+        const hgtBuy = f.hgtBuy ?? f.shBuy ?? 0;
+        const hgtSell = f.hgtSell ?? f.shSell ?? 0;
+        const sgtBuy = f.sgtBuy ?? f.szBuy ?? 0;
+        const sgtSell = f.sgtSell ?? f.szSell ?? 0;
+        return {
+          time: f.time ?? f.minute ?? "",
+          hgtBuy,
+          hgtSell,
+          sgtBuy,
+          sgtSell,
+          netFlow: hgtBuy - hgtSell + sgtBuy - sgtSell,
+        };
+      });
       return { data: items, source: "ths" };
     } catch (err) {
       return { data: null, error: String(err), source: "ths" };
