@@ -220,7 +220,18 @@ export class TencentProvider {
 
   // ─── Search ───
 
-  /** Search stocks/indices by keyword (smartbox suggest). */
+  /** Decode Unicode escapes in a string (e.g. "贵州" → "贵州"). */
+  private _decodeUnicode(str: string): string {
+    return str.replace(/\\u([\da-fA-F]{4})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+  }
+
+  /**
+   * Search stocks/indices/ETFs by keyword or code.
+   * Endpoint: GET https://smartbox.gtimg.cn/s3/?q={keyword}&t=all
+   * Response format: "v_hint=\"sh~600519~\\u8d35\\u5dde\\u8305\\u53f0~gzmt~GP-A^sz~000001~...~ZS\""
+   * Fields: {market}~{code}~{unicode_name}~{pinyin}~{type}
+   * Multiple results are separated by "^".
+   */
   async search(keyword: string): Promise<DataResult<SearchResult[]>> {
     const url = `https://smartbox.gtimg.cn/s3/?q=${encodeURIComponent(keyword)}&t=all`;
     try {
@@ -228,13 +239,33 @@ export class TencentProvider {
       if (!res.ok) return { data: null, error: `HTTP ${res.status}: ${res.statusText}`, source: "tencent" };
       const buf = await res.arrayBuffer();
       const text = decodeGBK(buf);
-      // Response format: "v_hint=\"1~600519~贵州茅台~GP-A\""
+      // Response: v_hint="entry1^entry2^entry3";
+      const hintMatch = text.match(/"([^"]+)"/);
+      if (!hintMatch || hintMatch[1] === "N") {
+        return { data: [], source: "tencent" };
+      }
+
+      const entries = hintMatch[1].split("^");
+      const re = /^([a-z]{2})~(\d{6})~([^~]+)~([^~]+)~(.+)$/;
+      const typeMap: Record<string, string> = {
+        GP: "stock", "GP-A": "stock", "GP-B": "stock",
+        ZS: "index",
+        ETF: "etf",
+        LOF: "fund", KJ: "fund", FJ: "fund",
+      };
+
       const results: SearchResult[] = [];
-      const re = /(\d)~([A-Z]{2})?(\d{6})~([^~]+)~([^~]+)/g;
-      let m: RegExpExecArray | null;
-      while ((m = re.exec(text)) !== null) {
-        const typeMap: Record<string, string> = { GP: "stock", ZS: "index", JJ: "etf" };
-        results.push({ symbol: m[3], name: m[4], type: typeMap[m[5]] ?? "stock" });
+      for (const entry of entries) {
+        const m = re.exec(entry.trim());
+        if (!m) continue;
+        const rawType = m[5];
+        // Strip trailing modifiers: "GP-A" → "GP" for type lookup, but keep as-is
+        const baseType = rawType.split("-")[0] ?? rawType;
+        results.push({
+          symbol: m[2],
+          name: this._decodeUnicode(m[3]),
+          type: typeMap[rawType] ?? typeMap[baseType] ?? "other",
+        });
       }
       return { data: results, source: "tencent" };
     } catch (err) {

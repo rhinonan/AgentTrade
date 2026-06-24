@@ -52,10 +52,11 @@ describe("TencentProvider", () => {
     expect(r.error).toContain("500");
   });
 
-  it("search returns parsed results", async () => {
-    // Use ASCII-only mock data — real API uses GBK, but TextEncoder produces
-    // UTF-8 bytes which decodeGBK would garble for non-ASCII chars.
-    const mockText = new TextEncoder().encode('v_hint="1~600519~MaoTai~GP-A"');
+  it("search returns parsed results with correct format", async () => {
+    // Mock real smartbox response: {market}~{code}~{unicode_name}~{pinyin}~{type}, ^ separated
+    const mockText = new TextEncoder().encode(
+      'v_hint="sh~600519~\\u8d35\\u5dde\\u8305\\u53f0~gzmt~GP-A^sz~000001~\\u5e73\\u5b89\\u94f6\\u884c~payh~GP-A"',
+    );
     globalThis.fetch = vi.fn().mockResolvedValueOnce({
       ok: true,
       arrayBuffer: async () => mockText.buffer,
@@ -64,8 +65,23 @@ describe("TencentProvider", () => {
     const r = await provider.search("茅台");
     expect(r.source).toBe("tencent");
     expect(r.data).not.toBeNull();
-    expect(r.data!.length).toBeGreaterThan(0);
+    expect(r.data!.length).toBe(2);
     expect(r.data![0].symbol).toBe("600519");
-    expect(r.data![0].name).toBe("MaoTai");
+    expect(r.data![0].name).toBe("贵州茅台");
+    expect(r.data![0].type).toBe("stock");
+    expect(r.data![1].symbol).toBe("000001");
+    expect(r.data![1].name).toBe("平安银行");
+  });
+
+  it("search returns empty array for no results", async () => {
+    const mockText = new TextEncoder().encode('v_hint="N";');
+    globalThis.fetch = vi.fn().mockResolvedValueOnce({
+      ok: true,
+      arrayBuffer: async () => mockText.buffer,
+    } as any);
+
+    const r = await provider.search("xyz_notfound");
+    expect(r.source).toBe("tencent");
+    expect(r.data).toEqual([]);
   });
 });
