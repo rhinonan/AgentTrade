@@ -5,6 +5,19 @@
 import type { DataResult, BalanceSheet, IncomeStatement, CashFlowStatement } from "../types.js";
 import { normalizeCode, getPrefix, fetchWithTimeout } from "../utils.js";
 
+interface SinaReportItem {
+  item_title: string;
+  item_value: string;
+}
+
+interface SinaFinanceResponse {
+  data?: {
+    report_list?: Record<string, {
+      data?: SinaReportItem[];
+    }>;
+  };
+}
+
 const UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36";
 
 export class SinaProvider {
@@ -22,7 +35,7 @@ export class SinaProvider {
     return `https://quotes.sina.cn/cn/api/jsonp_v2.php/data/stockFinanceReport?symbol=${market}${c}&type=${reportType}`;
   }
 
-  private async _getJsonp(url: string): Promise<any> {
+  private async _getJsonp(url: string): Promise<Record<string, unknown>> {
     const res = await fetchWithTimeout(url, { headers: { "User-Agent": UA } }, this.timeout);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const text = await res.text();
@@ -33,7 +46,7 @@ export class SinaProvider {
 
   async getBalanceSheet(code: string): Promise<DataResult<BalanceSheet | null>> {
     try {
-      const d = await this._getJsonp(this._reportUrl(code, "balance"));
+      const d = await this._getJsonp(this._reportUrl(code, "balance")) as SinaFinanceResponse;
       const reportList = d?.data?.report_list;
       if (!reportList) return { data: null, error: "No report_list in response", source: "sina" };
 
@@ -44,7 +57,7 @@ export class SinaProvider {
       const items = latest?.data ?? [];
 
       const getVal = (title: string) => {
-        const item = items.find((i: any) => i.item_title?.includes(title));
+        const item = items.find((i: SinaReportItem) => i.item_title?.includes(title));
         return item ? parseFloat(item.item_value) || 0 : 0;
       };
 
@@ -71,7 +84,7 @@ export class SinaProvider {
 
   async getIncomeStatement(code: string): Promise<DataResult<IncomeStatement | null>> {
     try {
-      const d = await this._getJsonp(this._reportUrl(code, "profit"));
+      const d = await this._getJsonp(this._reportUrl(code, "profit")) as SinaFinanceResponse;
       const reportList = d?.data?.report_list;
       if (!reportList) return { data: null, error: "No report_list", source: "sina" };
 
@@ -82,11 +95,11 @@ export class SinaProvider {
       const prev = reportList[periods[1]]?.data ?? [];
 
       const getVal = (title: string) => {
-        const item = items.find((i: any) => i.item_title?.includes(title));
+        const item = items.find((i: SinaReportItem) => i.item_title?.includes(title));
         return item ? parseFloat(item.item_value) || 0 : 0;
       };
       const prevVal = (title: string) => {
-        const item = prev.find((i: any) => i.item_title?.includes(title));
+        const item = prev.find((i: SinaReportItem) => i.item_title?.includes(title));
         return item ? parseFloat(item.item_value) || 0 : 0;
       };
 
@@ -120,7 +133,7 @@ export class SinaProvider {
 
   async getCashFlow(code: string): Promise<DataResult<CashFlowStatement | null>> {
     try {
-      const d = await this._getJsonp(this._reportUrl(code, "cashflow"));
+      const d = await this._getJsonp(this._reportUrl(code, "cashflow")) as SinaFinanceResponse;
       const reportList = d?.data?.report_list;
       if (!reportList) return { data: null, error: "No report_list", source: "sina" };
 
@@ -130,7 +143,7 @@ export class SinaProvider {
       const items = latest?.data ?? [];
 
       const getVal = (title: string) => {
-        const item = items.find((i: any) => i.item_title?.includes(title));
+        const item = items.find((i: SinaReportItem) => i.item_title?.includes(title));
         return item ? parseFloat(item.item_value) || 0 : 0;
       };
 
