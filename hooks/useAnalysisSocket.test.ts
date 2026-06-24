@@ -317,4 +317,116 @@ describe("useAnalysisSocket", () => {
     // connect() is memoized, so no extra io() call
     expect(mockIo).toHaveBeenCalledTimes(1);
   });
+
+  // --- agent:thinking ---
+
+  it("initializes agentStream on agent:thinking", () => {
+    const { result } = renderHook(() => useAnalysisSocket("sess-1"));
+
+    act(() => {
+      getHandler("agent:thinking")({
+        nodeId: "bull-analysis",
+        agentName: "technical-analyst",
+      });
+    });
+
+    const stream = result.current.agentStreams.get("bull-analysis");
+    expect(stream).toBeDefined();
+    expect(stream!.agentName).toBe("technical-analyst");
+    expect(stream!.status).toBe("thinking");
+    expect(stream!.toolCalls).toEqual([]);
+  });
+
+  // --- agent:tool_call ---
+
+  it("appends tool call to agentStream on agent:tool_call", () => {
+    const { result } = renderHook(() => useAnalysisSocket("sess-1"));
+
+    act(() => {
+      getHandler("agent:thinking")({
+        nodeId: "bull-analysis",
+        agentName: "technical-analyst",
+      });
+    });
+
+    act(() => {
+      getHandler("agent:tool_call")({
+        nodeId: "bull-analysis",
+        agentName: "technical-analyst",
+        tool: "get_kline",
+        args: { code: "600519", period: "day" },
+        ts: 1000,
+      });
+    });
+
+    const stream = result.current.agentStreams.get("bull-analysis");
+    expect(stream!.status).toBe("calling_tool");
+    expect(stream!.toolCalls).toHaveLength(1);
+    expect(stream!.toolCalls[0].tool).toBe("get_kline");
+  });
+
+  // --- agent:tool_result ---
+
+  it("stores tool result on agent:tool_result", () => {
+    const { result } = renderHook(() => useAnalysisSocket("sess-1"));
+
+    act(() => {
+      getHandler("agent:thinking")({
+        nodeId: "bull-analysis",
+        agentName: "technical-analyst",
+      });
+    });
+
+    act(() => {
+      getHandler("agent:tool_call")({
+        nodeId: "bull-analysis",
+        agentName: "technical-analyst",
+        tool: "get_kline",
+        args: {},
+        ts: 1000,
+      });
+    });
+
+    act(() => {
+      getHandler("agent:tool_result")({
+        nodeId: "bull-analysis",
+        agentName: "technical-analyst",
+        tool: "get_kline",
+        result: '{"data": [1,2,3]}',
+        ts: 2000,
+      });
+    });
+
+    const stream = result.current.agentStreams.get("bull-analysis");
+    const tr = stream!.toolResults.get("get_kline");
+    expect(tr).toBeDefined();
+    expect(tr!.result).toBe('{"data": [1,2,3]}');
+  });
+
+  // --- agent:writing ---
+
+  it("sets conclusion and reasoning on agent:writing", () => {
+    const { result } = renderHook(() => useAnalysisSocket("sess-1"));
+
+    act(() => {
+      getHandler("agent:thinking")({
+        nodeId: "bull-analysis",
+        agentName: "technical-analyst",
+      });
+    });
+
+    act(() => {
+      getHandler("agent:writing")({
+        nodeId: "bull-analysis",
+        agentName: "technical-analyst",
+        conclusion: "该股短期内存在技术性反弹机会。",
+        reasoning: "从多维度来看，均线呈多头排列。",
+      });
+    });
+
+    const stream = result.current.agentStreams.get("bull-analysis");
+    expect(stream!.status).toBe("writing");
+    expect(stream!.conclusion).toBe("该股短期内存在技术性反弹机会。");
+    expect(stream!.reasoning).toBe("从多维度来看，均线呈多头排列。");
+  });
 });
