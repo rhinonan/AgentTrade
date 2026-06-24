@@ -27,7 +27,6 @@ Agents and workflows are defined as YAML files, compiled at runtime into LangCha
 ## Project Structure
 
 ```
-nextjs-app/
 ├── app/                          Next.js App Router
 │   ├── layout.tsx                Root layout (zh-CN, dark theme)
 │   ├── page.tsx                  Landing page (stock search + workflow selector)
@@ -119,7 +118,7 @@ roles/                            YAML role definitions (at repo root)
 - **Types:** All public APIs must have explicit return types
 - **Tests:** `__tests__/` directory co-located or per module, vitest, one test file per source module
 - **LLM:** Never call Anthropic/OpenAI SDKs directly — always through `createLLM()` in `lib/llm/create-llm.ts`
-- **Path alias:** `@/*` maps to `nextjs-app/*` for imports
+- **Path alias:** `@/*` maps to `./*` for imports (tsconfig baseUrl: ".")
 
 ### React / Next.js
 
@@ -219,20 +218,20 @@ Key rules:
 
 ```bash
 # All tests
-cd nextjs-app && pnpm test
+pnpm test
 
 # Single file
-cd nextjs-app && pnpm vitest run lib/langgraph/__tests__/nodes.test.ts
-cd nextjs-app && pnpm vitest run lib/role-loader/__tests__/loader.test.ts
+pnpm vitest run lib/langgraph/__tests__/nodes.test.ts
+pnpm vitest run lib/role-loader/__tests__/loader.test.ts
 
 # Watch mode
-cd nextjs-app && pnpm vitest
+pnpm vitest
 
 # Integration tests (requires data service + API keys)
-cd nextjs-app && pnpm vitest run __tests__/integration/
+pnpm vitest run __tests__/integration/
 
 # Type check
-cd nextjs-app && pnpm lint
+pnpm lint
 ```
 
 Use `FakeToolCallingChatModel` from `lib/llm/__tests__/test-utils.ts` for tests that need LLM output without real API calls.

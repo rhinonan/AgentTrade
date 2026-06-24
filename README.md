@@ -67,7 +67,6 @@
 ### 1. 安装
 
 ```bash
-cd nextjs-app
 pnpm install
 ```
 
@@ -100,7 +99,6 @@ python main.py
 ### 4. 启动 Web 应用
 
 ```bash
-cd nextjs-app
 pnpm dev
 # → http://localhost:3000
 ```
@@ -268,34 +266,32 @@ nodes:
 ## 项目结构
 
 ```
-agenttrade/
-├── nextjs-app/
-│   ├── app/                     Next.js App Router
-│   │   ├── layout.tsx           根布局
-│   │   ├── page.tsx             首页 (搜索 + 选择工作流)
-│   │   ├── analyze/[id]/        分析页面 (SSR + WebSocket)
-│   │   ├── roles/               角色管理页
-│   │   └── api/                 REST API
-│   │       ├── analyze/         分析 API
-│   │       ├── roles/           角色管理 API
-│   │       └── workflows/       工作流列表
-│   ├── components/
-│   │   ├── ui/                  shadcn/ui 基础组件
-│   │   ├── landing/             首页组件
-│   │   └── analysis/            分析页组件
-│   ├── hooks/                   React Hooks (WebSocket)
-│   ├── lib/
-│   │   ├── role-loader/         YAML → LangChain 编译 (schema/loader/repo)
-│   │   ├── langgraph/           LanGraph 引擎 (state/nodes/builder/debate/compiler/runner)
-│   │   ├── tools/               工具注册 (类型/实现)
-│   │   ├── data/                Python 服务 HTTP 客户端
-│   │   ├── llm/                 LLM Provider Factory
-│   │   ├── chat/                会话管理 (类型/SSE)
-│   │   ├── socket/              Socket.IO 服务端
-│   │   └── db/                  SQLite 持久化 + 迁移
-│   ├── server.mjs               Custom Server
-│   ├── package.json
-│   └── tsconfig.json
+├── app/                         Next.js App Router
+│   ├── layout.tsx               根布局
+│   ├── page.tsx                 首页 (搜索 + 选择工作流)
+│   ├── analyze/[id]/            分析页面 (SSR + WebSocket)
+│   ├── roles/                   角色管理页
+│   └── api/                     REST API
+│       ├── analyze/             分析 API
+│       ├── roles/               角色管理 API
+│       └── workflows/           工作流列表
+├── components/
+│   ├── ui/                      shadcn/ui 基础组件
+│   ├── landing/                 首页组件
+│   └── analysis/                分析页组件
+├── hooks/                       React Hooks (WebSocket)
+├── lib/
+│   ├── role-loader/             YAML → LangChain 编译 (schema/loader/repo)
+│   ├── langgraph/               LanGraph 引擎 (state/nodes/builder/debate/compiler/runner)
+│   ├── tools/                   工具注册 (类型/实现)
+│   ├── data/                    Python 服务 HTTP 客户端
+│   ├── llm/                     LLM Provider Factory
+│   ├── chat/                    会话管理 (类型/SSE)
+│   ├── socket/                  Socket.IO 服务端
+│   └── db/                      SQLite 持久化 + 迁移
+├── server.mjs                   Custom Server
+├── package.json
+├── tsconfig.json
 ├── roles/                       YAML 角色定义
 │   ├── agents/                  20 内置 Agent
 │   └── workflows/               4 内置 Workflow
