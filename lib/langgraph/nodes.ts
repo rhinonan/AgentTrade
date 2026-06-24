@@ -143,6 +143,34 @@ function resolveStateVariables(template: string, state: State): string {
     },
   );
 
+  // {{debate.messages}} — formatted debate transcript
+  result = result.replace(
+    /\{\{debate\.messages\}\}/g,
+    () => {
+      const msgs = state.messages ?? [];
+      if (msgs.length === 0) return "(暂无辩论记录)";
+      return msgs
+        .map((m, i) => `[第${Math.floor(i / 2) + 1}轮] ${m.role}：${m.content}`)
+        .join("\n\n");
+    },
+  );
+
+  // {{debate.stop_reason}} — why the debate ended
+  result = result.replace(
+    /\{\{debate\.stop_reason\}\}/g,
+    () => {
+      if (state.stop_reason === "yield") return "一方认输";
+      if (state.stop_reason === "max_rounds") return "达到最大轮次上限";
+      return state.stop_reason || "辩论结束";
+    },
+  );
+
+  // {{debate.total_rounds}} — total debate rounds
+  result = result.replace(
+    /\{\{debate\.total_rounds\}\}/g,
+    () => String(state.total_rounds ?? state.round ?? 0),
+  );
+
   return result;
 }
 
@@ -302,6 +330,7 @@ export function buildCheckYieldNode(
     return {
       should_stop: shouldStop,
       stop_reason: shouldStop ? "yield" : "",
+      total_rounds: state.round,
     };
   };
 }

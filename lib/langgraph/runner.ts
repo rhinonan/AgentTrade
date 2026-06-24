@@ -55,8 +55,8 @@ let _builtinWorkflowsLoaded = false;
  * Build a nodeId → agentName lookup map from the workflow YAML.
  *
  * Standard nodes: workflow node ID → node.agent
- * Debate nodes: internal subgraph node IDs (p1_speak, p2_speak) →
- *   corresponding participant agent; check_yield / increment_round → debate node ID
+ * Debate nodes: internal subgraph node IDs (role-based, e.g. 多方_speak, 空方_speak) →
+ *   corresponding participant agent; check_yield / increment_round / set_max_end → debate node ID
  */
 function buildAgentNameMap(
   workflow: WorkflowYaml,
@@ -66,16 +66,18 @@ function buildAgentNameMap(
 
   for (const node of workflow.nodes) {
     if (node.type === "debate") {
-      // Debate subgraph internal nodes
+      // Debate subgraph internal nodes — now role-based IDs
       const participants = node.participants ?? [];
-      const sorted = [...participants].sort(
-        (a, b) => (b.first ? 1 : 0) - (a.first ? 1 : 0),
-      );
-      if (sorted.length >= 1) map.set("p1_speak", sorted[0].agent);
-      if (sorted.length >= 2) map.set("p2_speak", sorted[1].agent);
-      // check_yield and increment_round belong to the debate node
+      if (participants.length >= 1) {
+        map.set(`${participants[0].role}_speak`, participants[0].agent);
+      }
+      if (participants.length >= 2) {
+        map.set(`${participants[1].role}_speak`, participants[1].agent);
+      }
+      // check_yield, increment_round, and set_max_end belong to the debate node
       map.set("check_yield", node.id);
       map.set("increment_round", node.id);
+      map.set("set_max_end", node.id);
     } else {
       map.set(node.id, node.agent);
     }
@@ -140,6 +142,7 @@ export async function runWorkflow(
     round: 0,
     should_stop: false,
     stop_reason: "" as const,
+    total_rounds: 0,
   };
 
   let finalState = initialState;

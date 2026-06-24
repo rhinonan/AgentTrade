@@ -13,6 +13,7 @@ const TestState = Annotation.Root({
   round: Annotation<number>,
   should_stop: Annotation<boolean>,
   stop_reason: Annotation<"yield" | "max_rounds" | "">,
+  total_rounds: Annotation<number>,
 });
 
 describe("agentNode", () => {
@@ -49,6 +50,7 @@ describe("agentNode", () => {
       round: 0,
       should_stop: false,
       stop_reason: "" as const,
+      total_rounds: 0,
     };
 
     const result = await node(state);
@@ -73,10 +75,12 @@ describe("checkYieldNode", () => {
       round: 1,
       should_stop: false,
       stop_reason: "" as const,
+      total_rounds: 0,
     };
 
     const result = await node(state);
     expect(result.should_stop).toBe(true);
+    expect(result.total_rounds).toBe(1);
   });
 
   it("does not stop if no participant yields", async () => {
@@ -94,6 +98,7 @@ describe("checkYieldNode", () => {
       round: 1,
       should_stop: false,
       stop_reason: "" as const,
+      total_rounds: 0,
     };
 
     const result = await node(state);

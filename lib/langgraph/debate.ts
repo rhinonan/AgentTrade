@@ -1,4 +1,4 @@
-import { StateGraph, END } from "@langchain/langgraph";
+import { StateGraph, END, START } from "@langchain/langgraph";
 import { HumanMessage } from "@langchain/core/messages";
 import type { RoleLoader, CompiledAgent } from "../role-loader/loader.js";
 import { WorkflowState } from "./state.js";
@@ -18,15 +18,20 @@ interface DebateConfig {
 }
 
 /**
- * Build a debate subgraph:
+ * Build a debate subgraph with dynamic first-speaker routing.
  *
- *   P1_SPEAK → P2_SPEAK → CHECK_YIELD → (conditional)
- *     → if stop: END
- *     → if continue: INCREMENT_ROUND → P1_SPEAK
+ * Graph structure:
+ *   START → (conditional: meets_expectations?) → first speaker
+ *   first speaker → (conditional) → second speaker → check_yield
+ *   check_yield → END (yield) | set_max_end (max rounds) | increment_round → first speaker
  *
- * Participants are ordered by first=true (the first speaker goes first).
- * Each speaker node invokes the LLM with a debate-specific prompt
- * and stores findings under round_{N}_{role} keys.
+ * When research.meets_expectations === false (below expectations):
+ *   The bear (空方) speaks first.
+ * Otherwise (true or undefined, at/above expectations):
+ *   The bull (多方) speaks first.
+ *
+ * Node IDs are role-based (e.g. 多方_speak, 空方_speak) rather than
+ * position-based (p1_speak, p2_speak).
  */
 export function buildDebateSubgraph(
   config: DebateConfig,
@@ -40,10 +45,8 @@ export function buildDebateSubgraph(
     throw new Error("Debate currently supports exactly 2 participants");
   }
 
-  // Sort: first=true participant comes first
-  const sorted = [...participants].sort((a, b) => (b.first ? 1 : 0) - (a.first ? 1 : 0));
-  const p1 = sorted[0];
-  const p2 = sorted[1];
+  const p1 = participants[0]; // e.g. { agent: "earnings-bull", role: "多方" }
+  const p2 = participants[1]; // e.g. { agent: "earnings-bear", role: "空方" }
 
   const p1Agent = loader.getAgent(p1.agent);
   const p2Agent = loader.getAgent(p2.agent);
@@ -54,26 +57,58 @@ export function buildDebateSubgraph(
     );
   }
 
-  // Build nodes
-  graph.addNode("p1_speak", buildDebateSpeakerNode(p1Agent, llmFactory, p1.role, p2.role, config.prompt_template));
-  graph.addNode("p2_speak", buildDebateSpeakerNode(p2Agent, llmFactory, p2.role, p1.role, config.prompt_template));
+  // Node IDs are role-based, not position-based
+  const p1NodeId = `${p1.role}_speak`;
+  const p2NodeId = `${p2.role}_speak`;
+
+  graph.addNode(p1NodeId, buildDebateSpeakerNode(p1Agent, llmFactory, p1.role, p2.role, config.prompt_template));
+  graph.addNode(p2NodeId, buildDebateSpeakerNode(p2Agent, llmFactory, p2.role, p1.role, config.prompt_template));
   graph.addNode("check_yield", buildCheckYieldNode(config.stop_when.field, config.stop_when.condition));
   graph.addNode("increment_round", incrementRoundNode);
+  graph.addNode("set_max_end", (state: State): Partial<State> => ({
+    should_stop: true,
+    stop_reason: "max_rounds",
+    total_rounds: state.round + 1,
+  }));
+  graph.addEdge("set_max_end" as any, END as any);
 
-  // Edges: p1 → p2 → check
-  graph.addEdge("p1_speak" as any, "p2_speak" as any);
-  graph.addEdge("p2_speak" as any, "check_yield" as any);
+  // Routing function: bear speaks first when earnings miss expectations
+  const routeToFirstSpeaker = (state: State): string => {
+    const research = state.findings?.research as Record<string, unknown> | undefined;
+    // meets_expectations === false → below expectations → bear (空方) first
+    // Otherwise (true or undefined) → bull (多方) first
+    const bearFirst = research?.meets_expectations === false;
+    return bearFirst ? p2NodeId : p1NodeId;
+  };
 
-  // Conditional: continue loop or exit
-  // round starts at 0 → round 0 is round 1, so stop after max_rounds-1
+  // START → conditional to first speaker
+  graph.addConditionalEdges(START as any, routeToFirstSpeaker);
+
+  // From p1 (e.g. 多方): if bear is first → p1 speaks second → check_yield;
+  // otherwise p1 speaks first → go to p2
+  graph.addConditionalEdges(p1NodeId as any, (state: State) => {
+    const research = state.findings?.research as Record<string, unknown> | undefined;
+    const bearFirst = research?.meets_expectations === false;
+    return bearFirst ? "check_yield" : p2NodeId;
+  });
+
+  // From p2 (e.g. 空方): if bear is first → p2 speaks first → go to p1;
+  // otherwise p2 speaks second → check_yield
+  graph.addConditionalEdges(p2NodeId as any, (state: State) => {
+    const research = state.findings?.research as Record<string, unknown> | undefined;
+    const bearFirst = research?.meets_expectations === false;
+    return bearFirst ? p1NodeId : "check_yield";
+  });
+
+  // check_yield → END (yield) | set_max_end (max rounds) | increment_round
   graph.addConditionalEdges("check_yield" as any, (state: State) => {
     if (state.should_stop) return END;
-    if (state.round >= config.max_rounds - 1) return END;
+    if (state.round >= config.max_rounds - 1) return "set_max_end";
     return "increment_round";
   });
 
-  // increment_round → p1_speak (loop back)
-  graph.addEdge("increment_round" as any, "p1_speak" as any);
+  // increment_round → back to first speaker (same routing logic)
+  graph.addConditionalEdges("increment_round" as any, routeToFirstSpeaker);
 
   return graph;
 }
