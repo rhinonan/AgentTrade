@@ -5,7 +5,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const dir = path.resolve(__dirname, '..', '..', 'roles', 'workflows');
+const dir = path.resolve(__dirname, '..', 'roles', 'workflows');
 const files = fs.readdirSync(dir).filter(f => f.endsWith('.yaml'));
 let errors = 0;
 for (const f of files) {

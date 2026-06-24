@@ -1,4 +1,4 @@
-// nextjs-app/app/api/roles/[id]/route.ts
+// app/api/roles/[id]/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { getDb } from "@/lib/db/client.js";
 import { RoleRepo } from "@/lib/role-loader/repo.js";

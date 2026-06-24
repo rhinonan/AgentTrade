@@ -1,4 +1,4 @@
-// nextjs-app/app/api/roles/__tests__/route.test.ts
+// app/api/roles/__tests__/route.test.ts
 import { describe, it, expect, beforeEach, vi } from "vitest";
 import { GET, POST } from "../route.js";
 import { NextRequest } from "next/server";

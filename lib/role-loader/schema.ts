@@ -1,4 +1,4 @@
-// nextjs-app/lib/role-loader/schema.ts
+// lib/role-loader/schema.ts
 import { z } from "zod";
 
 // ——— Field Schema (output_schema values) ———
