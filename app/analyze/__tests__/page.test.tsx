@@ -11,7 +11,7 @@ const mockFetch = vi.fn();
 globalThis.fetch = mockFetch;
 
 const mockWorkflows = [
-  { name: "bull-bear", description: "牛熊对抗" },
+  { name: "earnings-debate", description: "财报多空对决" },
   { name: "quick-scan", description: "快速扫描" },
 ];
 
@@ -57,7 +57,7 @@ describe("AnalyzePage", () => {
   it("fetches and displays workflow options", async () => {
     renderPage();
     await waitFor(() => {
-      expect(screen.getByText("牛熊对抗")).toBeDefined();
+      expect(screen.getByText("财报多空对决")).toBeDefined();
     });
     expect(screen.getByText("快速扫描")).toBeDefined();
     expect(screen.getByText("四层深度分析")).toBeDefined();
@@ -66,7 +66,7 @@ describe("AnalyzePage", () => {
   it("highlights the selected workflow", async () => {
     renderPage();
     await waitFor(() => {
-      expect(screen.getByText("牛熊对抗")).toBeDefined();
+      expect(screen.getByText("财报多空对决")).toBeDefined();
     });
     const quickScanButton = screen.getByText("快速扫描").closest("button");
     expect(quickScanButton).toBeDefined();
@@ -106,7 +106,7 @@ describe("AnalyzePage", () => {
     const input = await screen.findByPlaceholderText(/输入股票代码/);
     fireEvent.change(input, { target: { value: "600519" } });
     await waitFor(() => {
-      expect(screen.getByText("牛熊对抗")).toBeDefined();
+      expect(screen.getByText("财报多空对决")).toBeDefined();
     });
     const startButton = screen.getByText("开始分析");
     fireEvent.click(startButton);

@@ -12,10 +12,10 @@ describe("POST /api/analyze - validation", () => {
     expect(hasCode || hasSector || hasIndex).toBe(false);
   });
 
-  it("defaults workflow to bull-bear", () => {
+  it("defaults workflow to earnings-debate", () => {
     const body: Record<string, unknown> = { code: "600519" };
-    const workflow = (body.workflow as string) ?? "bull-bear";
-    expect(workflow).toBe("bull-bear");
+    const workflow = (body.workflow as string) ?? "earnings-debate";
+    expect(workflow).toBe("earnings-debate");
   });
 
   it("defaults provider to deepseek", () => {

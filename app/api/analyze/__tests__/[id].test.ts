@@ -36,7 +36,7 @@ describe("GET /api/analyze/[id]", () => {
     const now = Date.now();
     const context = JSON.stringify({
       target: { code: "600519", name: "贵州茅台", type: "stock" },
-      workflowName: "bull-bear",
+      workflowName: "earnings-debate",
       findings: [],
     });
 
@@ -45,7 +45,7 @@ describe("GET /api/analyze/[id]", () => {
       targetCode: "600519",
       targetName: "贵州茅台",
       targetType: "stock",
-      workflowName: "bull-bear",
+      workflowName: "earnings-debate",
       status: "complete",
       context,
       createdAt: now,

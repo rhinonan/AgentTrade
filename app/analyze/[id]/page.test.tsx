@@ -30,7 +30,7 @@ function buildRecord(overrides: Record<string, unknown> = {}) {
     targetType: "stock",
     targetCode: "600519",
     targetName: "贵州茅台",
-    workflowName: "bull-bear",
+    workflowName: "earnings-debate",
     status: "running" as const,
     context: JSON.stringify({
       findings: [

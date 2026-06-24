@@ -91,7 +91,7 @@ describe("chat types (compile-time verification)", () => {
     const session: ChatSession = {
       id: "session-1",
       target: { type: "stock", code: "600519", name: "贵州茅台" },
-      workflowName: "bull-bear",
+      workflowName: "earnings-debate",
       status: "RUNNING",
       stepIndex: 0,
       findings: [],
@@ -166,13 +166,13 @@ describe("chat types (compile-time verification)", () => {
     const input: CreateSessionInput = {
       code: "600519",
       sector: "白酒",
-      workflow: "bull-bear",
+      workflow: "earnings-debate",
       provider: "anthropic",
       model: "claude-3-opus",
       userId: "test-user",
     };
     expect(input.code).toBe("600519");
-    expect(input.workflow).toBe("bull-bear");
+    expect(input.workflow).toBe("earnings-debate");
   });
 
   it("CreateSessionInput can be empty", () => {

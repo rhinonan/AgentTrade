@@ -9,7 +9,7 @@ import { setDefaultLLMProvider } from "@/lib/llm/create-llm.js";
 
 export async function POST(req: NextRequest) {
   const body = await req.json();
-  const { code, sector, index, workflow = "bull-bear", provider = "deepseek", model } = body;
+  const { code, sector, index, workflow = "earnings-debate", provider = "deepseek", model } = body;
 
   if (!code && !sector && !index) {
     return NextResponse.json({ error: "Must specify code, sector, or index" }, { status: 400 });

@@ -140,7 +140,7 @@ describe("analyze flow (integration)", () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         code: "600519",
-        workflow: "bull-bear",
+        workflow: "earnings-debate",
         provider: "deepseek",
       }),
     });
@@ -199,7 +199,7 @@ describe("analyze flow (integration)", () => {
     if (startEvent) {
       expect(startEvent.target).toBeDefined();
       expect(startEvent.target.type).toBeDefined();
-      expect(startEvent.workflow).toBe("bull-bear");
+      expect(startEvent.workflow).toBe("earnings-debate");
     }
 
     // We should have at least a terminal event (complete or error)
@@ -221,7 +221,7 @@ describe("analyze flow (integration)", () => {
     if (terminalEvent?.type === "complete") {
       expect(status.status).toBe("complete");
       expect(status.target).toBeDefined();
-      expect(status.workflow).toBe("bull-bear");
+      expect(status.workflow).toBe("earnings-debate");
     }
   }, 180000);
 
@@ -256,7 +256,7 @@ describe("analyze flow (integration)", () => {
 
     // Verify expected workflow names
     const names = body.map((w: any) => w.name);
-    expect(names.some((n: string) => n.toLowerCase().includes("bull"))).toBe(
+    expect(names.some((n: string) => n.toLowerCase().includes("earnings"))).toBe(
       true,
     );
   });

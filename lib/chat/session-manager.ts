@@ -57,7 +57,7 @@ export class SessionManager {
       : { type: "index", code: input.index! };
 
     const session: ChatSession = {
-      id, target, workflowName: input.workflow ?? "bull-bear",
+      id, target, workflowName: input.workflow ?? "earnings-debate",
       status: "RUNNING", stepIndex: 0, findings: [], createdAt: Date.now(),
     };
 

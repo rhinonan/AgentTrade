@@ -23,7 +23,7 @@ describe("AnalysisRepo", () => {
       targetCode: "600519",
       targetName: "贵州茅台",
       targetType: "stock",
-      workflowName: "bull-bear",
+      workflowName: "earnings-debate",
       status: "running",
       context: JSON.stringify({ target: { code: "600519" }, findings: [] }),
       createdAt: Date.now(),
@@ -33,7 +33,7 @@ describe("AnalysisRepo", () => {
 
     const found = repo.getById("test-1");
     expect(found?.targetCode).toBe("600519");
-    expect(found?.workflowName).toBe("bull-bear");
+    expect(found?.workflowName).toBe("earnings-debate");
   });
 
   it("updates status and context", () => {
@@ -79,7 +79,7 @@ describe("AnalysisRepo", () => {
     // Verify default value works
     db2.prepare(
       `INSERT INTO analyses (id, target_code, target_name, target_type, workflow_name, status, context, created_at)
-       VALUES ('test-mig', '000001', 'test', 'stock', 'bull-bear', 'running', '{}', 0)`
+       VALUES ('test-mig', '000001', 'test', 'stock', 'earnings-debate', 'running', '{}', 0)`
     ).run();
     const row = db2.prepare("SELECT user_id FROM analyses WHERE id = 'test-mig'").get() as any;
     expect(row.user_id).toBe("anonymous");

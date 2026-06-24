@@ -20,7 +20,7 @@ describe("SessionRepo", () => {
   it("inserts and retrieves a session", () => {
     repo.insert({
       id: "s1", targetCode: "600519", targetName: "贵州茅台",
-      targetType: "stock", workflowName: "牛熊对抗",
+      targetType: "stock", workflowName: "财报多空对决",
       status: "RUNNING", createdAt: 1000,
     });
     const session = repo.getById("s1");
@@ -31,7 +31,7 @@ describe("SessionRepo", () => {
 
   it("lists recent sessions ordered by created_at DESC", () => {
     repo.insert({ id: "s1", targetCode: "000001", targetName: null, targetType: "stock", workflowName: "layered", status: "STOPPED", createdAt: 1000 });
-    repo.insert({ id: "s2", targetCode: "000002", targetName: null, targetType: "stock", workflowName: "bull-bear", status: "RUNNING", createdAt: 2000 });
+    repo.insert({ id: "s2", targetCode: "000002", targetName: null, targetType: "stock", workflowName: "earnings-debate", status: "RUNNING", createdAt: 2000 });
     repo.insert({ id: "s3", targetCode: "000003", targetName: null, targetType: "stock", workflowName: "quick-scan", status: "STOPPED", createdAt: 3000 });
 
     const recent = repo.listRecent(2);
@@ -61,7 +61,7 @@ describe("SessionRepo", () => {
   });
 
   it("deleteById returns true when userId matches", () => {
-    repo.insert({ id: "s2", targetCode: "000001", targetName: null, targetType: "stock", workflowName: "bull-bear", status: "RUNNING", createdAt: 1000, userId: "user-a" });
+    repo.insert({ id: "s2", targetCode: "000001", targetName: null, targetType: "stock", workflowName: "earnings-debate", status: "RUNNING", createdAt: 1000, userId: "user-a" });
     const result = repo.deleteById("s2", "user-a");
     expect(result).toBe(true);
     expect(repo.getById("s2")).toBeNull();

@@ -19,7 +19,7 @@ describe("types (compile-time verification)", () => {
       task: "分析贵州茅台",
       findings: [],
       debateRounds: [],
-      workflowName: "bull-bear",
+      workflowName: "earnings-debate",
       startedAt: Date.now(),
     };
     expect(ctx.target.type).toBe("stock");

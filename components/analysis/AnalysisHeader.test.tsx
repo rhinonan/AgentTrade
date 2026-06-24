@@ -4,7 +4,7 @@ import { AnalysisHeader } from "./AnalysisHeader";
 
 describe("AnalysisHeader", () => {
   const baseTarget = { type: "stock", code: "600519", name: "贵州茅台" };
-  const baseWorkflow = "bull-bear";
+  const baseWorkflow = "earnings-debate";
 
   it("renders the target name when provided", () => {
     render(
@@ -41,7 +41,7 @@ describe("AnalysisHeader", () => {
       />,
     );
     expect(screen.getByText(/600519/)).toBeDefined();
-    expect(screen.getByText(/bull-bear/)).toBeDefined();
+    expect(screen.getByText(/earnings-debate/)).toBeDefined();
   });
 
   it("renders running status with amber color", () => {

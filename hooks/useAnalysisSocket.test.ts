@@ -96,18 +96,17 @@ describe("useAnalysisSocket", () => {
 
   // --- analysis:start ---
 
-  it("sets steps for bull-bear workflow on analysis:start", () => {
+  it("sets steps for earnings-debate workflow on analysis:start", () => {
     const { result } = renderHook(() => useAnalysisSocket("sess-1"));
 
     act(() => {
-      getHandler("analysis:start")({ workflow: "bull-bear" });
+      getHandler("analysis:start")({ workflow: "earnings-debate" });
     });
 
     expect(result.current.steps).toEqual([
-      { stepId: "bull-analysis", type: "bull-analysis", agentIds: [], status: "pending" },
-      { stepId: "bear-analysis", type: "bear-analysis", agentIds: [], status: "pending" },
-      { stepId: "cross-critique", type: "cross-critique", agentIds: [], status: "pending" },
-      { stepId: "final", type: "final", agentIds: [], status: "pending" },
+      { stepId: "research", type: "research", agentIds: [], status: "pending" },
+      { stepId: "debate", type: "debate", agentIds: [], status: "pending" },
+      { stepId: "narrator", type: "narrator", agentIds: [], status: "pending" },
     ]);
   });
 
@@ -142,17 +141,17 @@ describe("useAnalysisSocket", () => {
 
     // First set up steps via analysis:start
     act(() => {
-      getHandler("analysis:start")({ workflow: "bull-bear" });
+      getHandler("analysis:start")({ workflow: "earnings-debate" });
     });
 
     act(() => {
       getHandler("step:start")({
-        stepId: "bull-analysis",
+        stepId: "research",
         agentIds: ["bull-001"],
       });
     });
 
-    const step = result.current.steps.find((s) => s.stepId === "bull-analysis");
+    const step = result.current.steps.find((s) => s.stepId === "research");
     expect(step?.status).toBe("running");
     expect(step?.agentIds).toEqual(["bull-001"]);
   });
@@ -163,14 +162,14 @@ describe("useAnalysisSocket", () => {
     const { result } = renderHook(() => useAnalysisSocket("sess-1"));
 
     act(() => {
-      getHandler("analysis:start")({ workflow: "bull-bear" });
+      getHandler("analysis:start")({ workflow: "earnings-debate" });
     });
 
     act(() => {
-      getHandler("step:complete")({ stepId: "bull-analysis" });
+      getHandler("step:complete")({ stepId: "research" });
     });
 
-    const step = result.current.steps.find((s) => s.stepId === "bull-analysis");
+    const step = result.current.steps.find((s) => s.stepId === "research");
     expect(step?.status).toBe("complete");
   });
 
@@ -179,7 +178,7 @@ describe("useAnalysisSocket", () => {
 
     act(() => {
       getHandler("step:complete")({
-        stepId: "bull-analysis",
+        stepId: "research",
         findings: [
           {
             agent: "bull",
@@ -193,7 +192,7 @@ describe("useAnalysisSocket", () => {
 
     expect(result.current.findings).toHaveLength(1);
     expect(result.current.findings[0]).toMatchObject({
-      step: "bull-analysis",
+      step: "research",
       agent: "bull",
       conclusion: "Strong uptrend",
       sentiment: "bullish",
@@ -207,7 +206,7 @@ describe("useAnalysisSocket", () => {
 
     act(() => {
       getHandler("step:complete")({
-        stepId: "cross-critique",
+        stepId: "debate",
         findings: [
           { agent: "bull", conclusion: "a", sentiment: "bullish", confidence: 0.8 },
           { agent: "bear", conclusion: "b", sentiment: "bearish", confidence: 0.7 },

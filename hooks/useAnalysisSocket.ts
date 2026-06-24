@@ -60,7 +60,9 @@ export function useAnalysisSocket(sessionId: string) {
   const socketRef = useRef<Socket | null>(null);
 
   const connect = useCallback(() => {
-    const url = window.location.origin;
+    // When running behind the SaaS proxy, the WebSocket server is on the
+    // upstream port. Set NEXT_PUBLIC_WS_URL=http://localhost:3001 in .env
+    const url = process.env.NEXT_PUBLIC_WS_URL || window.location.origin;
     const socket = io(`${url}/analysis`, {
       transports: ["websocket", "polling"],
       forceNew: true,
@@ -76,8 +78,8 @@ export function useAnalysisSocket(sessionId: string) {
 
     socket.on(WS_EVENTS.ANALYSIS_START, (payload: any) => {
       const wfSteps =
-        payload.workflow === "bull-bear"
-          ? ["bull-analysis", "bear-analysis", "cross-critique", "final"]
+        payload.workflow === "earnings-debate"
+          ? ["research", "debate", "narrator"]
           : payload.workflow === "quick-scan"
             ? ["tech", "fundamental", "final"]
             : [];

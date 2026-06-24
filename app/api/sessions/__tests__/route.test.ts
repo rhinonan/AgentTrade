@@ -11,7 +11,7 @@ describe("GET /api/sessions", () => {
     db = new Database(":memory:");
     createTables(db);
     const repo = new SessionRepo(db);
-    repo.insert({ id: "s1", targetCode: "600519", targetName: "茅台", targetType: "stock", workflowName: "bull-bear", status: "STOPPED", createdAt: 1000 });
+    repo.insert({ id: "s1", targetCode: "600519", targetName: "茅台", targetType: "stock", workflowName: "earnings-debate", status: "STOPPED", createdAt: 1000 });
     repo.insert({ id: "s2", targetCode: "000858", targetName: "五粮液", targetType: "stock", workflowName: "layered", status: "RUNNING", createdAt: 2000 });
   });
 
@@ -38,7 +38,7 @@ describe("GET /api/session/[id]", () => {
     sessionRepo = new SessionRepo(db);
     chatRepo = new ChatRepo(db);
 
-    sessionRepo.insert({ id: "s1", targetCode: "600519", targetName: "茅台", targetType: "stock", workflowName: "bull-bear", status: "STOPPED", createdAt: 1000 });
+    sessionRepo.insert({ id: "s1", targetCode: "600519", targetName: "茅台", targetType: "stock", workflowName: "earnings-debate", status: "STOPPED", createdAt: 1000 });
   });
 
   afterEach(() => {

@@ -16,7 +16,7 @@ describe("GET /api/workflows", () => {
     }
 
     const names = data.map((w: { name: string }) => w.name);
-    expect(names).toContain("bull-bear");
+    expect(names).toContain("earnings-debate");
     expect(names).toContain("quick-scan");
   });
 });
