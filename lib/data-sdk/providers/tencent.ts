@@ -254,19 +254,33 @@ export class TencentProvider {
         LOF: "fund", KJ: "fund", FJ: "fund",
       };
 
-      const results: SearchResult[] = [];
+      // Priority: stock > etf > index > fund > other (lower number = higher priority)
+      const typePriority: Record<string, number> = {
+        stock: 0, etf: 1, index: 2, fund: 3, other: 4,
+      };
+
+      const seen = new Map<string, { result: SearchResult; priority: number }>();
       for (const entry of entries) {
         const m = re.exec(entry.trim());
         if (!m) continue;
         const rawType = m[5];
-        // Strip trailing modifiers: "GP-A" → "GP" for type lookup, but keep as-is
         const baseType = rawType.split("-")[0] ?? rawType;
-        results.push({
-          symbol: m[2],
-          name: this._decodeUnicode(m[3]),
-          type: typeMap[rawType] ?? typeMap[baseType] ?? "other",
-        });
+        const type = typeMap[rawType] ?? typeMap[baseType] ?? "other";
+        const priority = typePriority[type] ?? 99;
+        const symbol = m[2];
+        const existing = seen.get(symbol);
+        if (!existing || priority < existing.priority) {
+          seen.set(symbol, {
+            result: {
+              symbol,
+              name: this._decodeUnicode(m[3]),
+              type,
+            },
+            priority,
+          });
+        }
       }
+      const results = Array.from(seen.values()).map(v => v.result);
       return { data: results, source: "tencent" };
     } catch (err) {
       return { data: null, error: String(err), source: "tencent" };
