@@ -6,6 +6,14 @@ import { migrate as migrate003 } from "./migrations/003-wishpool.js";
 
 let _db: Database.Database | null = null;
 
+export function setDb(db: Database.Database): void {
+  _db = db;
+}
+
+export function resetDb(): void {
+  _db = null;
+}
+
 export function getDb(dbPath = "./data/agenttrade.db"): Database.Database {
   if (!_db) {
     const dir = path.dirname(dbPath);
