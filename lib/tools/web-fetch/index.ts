@@ -45,23 +45,49 @@ export const webFetchTool: ToolDefinition = {
       return JSON.stringify({ error: "Web fetch cancelled" });
     }
 
+    // Compose user signal with 30s overall timeout
+    const overallTimeout = AbortSignal.timeout(30_000);
+    const composedSignal = AbortSignal.any([ctx.signal, overallTimeout]);
+
     // 1. Search with DuckDuckGo, fallback to Bing
     let results: SearchItem[] = [];
     let source = "duckduckgo";
 
     try {
-      results = await DuckDuckGoSearchEngine.search(query, 5);
-    } catch {
-      // DuckDuckGo threw — will try Bing
+      results = await DuckDuckGoSearchEngine.search(query, 5, composedSignal);
+    } catch (err) {
+      console.warn(
+        `[web_fetch] DuckDuckGo search threw for "${query}":`,
+        err instanceof Error ? err.message : String(err),
+      );
+    }
+
+    // Check timeout / cancellation after DuckDuckGo
+    if (overallTimeout.aborted) {
+      return JSON.stringify({ error: "Web fetch timed out after 30s" });
+    }
+    if (ctx.signal.aborted) {
+      return JSON.stringify({ error: "Web fetch cancelled" });
     }
 
     if (results.length === 0) {
       source = "bing";
       try {
-        results = await BingSearchEngine.search(query, 5);
-      } catch {
-        // Bing also failed
+        results = await BingSearchEngine.search(query, 5, composedSignal);
+      } catch (err) {
+        console.warn(
+          `[web_fetch] Bing search threw for "${query}":`,
+          err instanceof Error ? err.message : String(err),
+        );
       }
+    }
+
+    // Check timeout / cancellation after Bing
+    if (overallTimeout.aborted) {
+      return JSON.stringify({ error: "Web fetch timed out after 30s" });
+    }
+    if (ctx.signal.aborted) {
+      return JSON.stringify({ error: "Web fetch cancelled" });
     }
 
     if (results.length === 0) {
@@ -75,7 +101,7 @@ export const webFetchTool: ToolDefinition = {
       const contentPromises = results.map(async (item) => {
         try {
           const timeoutSignal = AbortSignal.timeout(FETCH_CONTENT_TIMEOUT_MS);
-          const composedSignal = AbortSignal.any([ctx.signal, timeoutSignal]);
+          const composedSignal = AbortSignal.any([ctx.signal, overallTimeout, timeoutSignal]);
 
           const content = await WebContentFetcher.fetchContent(
             item.url,
@@ -92,7 +118,11 @@ export const webFetchTool: ToolDefinition = {
             result.content_error = "Failed to fetch content";
           }
           return result;
-        } catch {
+        } catch (err) {
+          console.warn(
+            `[web_fetch] Content fetch failed for "${item.url}":`,
+            err instanceof Error ? err.message : String(err),
+          );
           return {
             title: item.title,
             url: item.url,

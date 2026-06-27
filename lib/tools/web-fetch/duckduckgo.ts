@@ -23,11 +23,15 @@ export class DuckDuckGoSearchEngine {
   static async search(
     query: string,
     maxResults: number = DEFAULT_MAX_RESULTS,
+    signal?: AbortSignal,
   ): Promise<SearchItem[]> {
     try {
       const items: SearchItem[] = [];
 
       for await (const result of ddgSearch.text(query)) {
+        if (signal?.aborted) {
+          throw new DOMException("Aborted", "AbortError");
+        }
         if (items.length >= maxResults) break;
 
         items.push({
@@ -38,7 +42,14 @@ export class DuckDuckGoSearchEngine {
       }
 
       return items.filter((item) => item.url);
-    } catch {
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        return [];
+      }
+      console.warn(
+        `[DuckDuckGoSearchEngine] Search failed for "${query}":`,
+        err instanceof Error ? err.message : String(err),
+      );
       return [];
     }
   }

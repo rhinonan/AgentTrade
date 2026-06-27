@@ -18,3 +18,12 @@ if (typeof AbortSignal.any !== "function") {
     return controller.signal;
   };
 }
+
+// Polyfill AbortSignal.timeout for jsdom (not yet supported)
+if (typeof AbortSignal.timeout !== "function") {
+  (AbortSignal as any).timeout = function (ms: number): AbortSignal {
+    const controller = new AbortController();
+    setTimeout(() => controller.abort(new DOMException("Timeout", "TimeoutError")), ms);
+    return controller.signal;
+  };
+}

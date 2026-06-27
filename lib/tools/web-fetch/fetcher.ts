@@ -46,6 +46,10 @@ export class WebContentFetcher {
       if (err instanceof DOMException && err.name === "AbortError") {
         return null;
       }
+      console.warn(
+        `[WebContentFetcher] Failed to fetch ${url}:`,
+        err instanceof Error ? err.message : String(err),
+      );
       return null;
     }
   }

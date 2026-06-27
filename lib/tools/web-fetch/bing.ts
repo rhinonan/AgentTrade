@@ -19,6 +19,7 @@ export class BingSearchEngine {
   static async search(
     query: string,
     maxResults: number = DEFAULT_MAX_RESULTS,
+    signal?: AbortSignal,
   ): Promise<SearchItem[]> {
     const results: SearchItem[] = [];
 
@@ -34,6 +35,7 @@ export class BingSearchEngine {
             "Accept-Language": "zh-CN,zh;q=0.9,en;q=0.8",
             Referer: "https://www.bing.com/",
           },
+          signal,
         });
 
         if (response.status !== 200) break;
@@ -57,8 +59,8 @@ export class BingSearchEngine {
 
             if (url) {
               results.push({ title: title || `Bing Result ${first}`, url, description });
+              first++;
             }
-            first++;
           } catch {
             // Skip malformed result items
             continue;
@@ -76,7 +78,14 @@ export class BingSearchEngine {
       }
 
       return results.slice(0, maxResults);
-    } catch {
+    } catch (err) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        return [];
+      }
+      console.warn(
+        `[BingSearchEngine] Search failed for "${query}":`,
+        err instanceof Error ? err.message : String(err),
+      );
       return [];
     }
   }

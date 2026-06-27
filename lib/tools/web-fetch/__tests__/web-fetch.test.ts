@@ -145,13 +145,15 @@ describe("webFetchTool", () => {
     expect(parsed.error).toContain("non-empty");
   });
 
-  it("returns error when user cancels via signal", async () => {
+  it("returns error when user cancels during search", async () => {
     const controller = new AbortController();
-    controller.abort();
 
-    vi.mocked(DuckDuckGoSearchEngine.search).mockRejectedValueOnce(
-      new DOMException("Aborted", "AbortError"),
-    );
+    // Simulate cancellation happening DURING DuckDuckGo search:
+    // the mock aborts the controller mid-execution, then returns [].
+    vi.mocked(DuckDuckGoSearchEngine.search).mockImplementation(async () => {
+      controller.abort();
+      return [];
+    });
 
     const result = await webFetchTool.execute(
       { query: "test" },
@@ -160,5 +162,21 @@ describe("webFetchTool", () => {
     const parsed = JSON.parse(result);
 
     expect(parsed.error).toBe("Web fetch cancelled");
+  });
+
+  it("falls back to Bing when DuckDuckGo throws", async () => {
+    vi.mocked(DuckDuckGoSearchEngine.search).mockRejectedValueOnce(
+      new Error("DDG API down"),
+    );
+    vi.mocked(BingSearchEngine.search).mockResolvedValueOnce([
+      mockSearchResult("Bing Result", "https://bing-result.com", "Bing desc"),
+    ]);
+
+    const result = await webFetchTool.execute({ query: "test" }, mockCtx());
+    const parsed = JSON.parse(result);
+
+    expect(parsed.source).toBe("bing");
+    expect(parsed.results).toHaveLength(1);
+    expect(parsed.results[0].title).toBe("Bing Result");
   });
 });
