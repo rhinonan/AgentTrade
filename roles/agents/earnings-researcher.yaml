@@ -19,7 +19,7 @@ system_prompt: |
   4. **行业与事件背景**：搜索影响该公司业绩的行业趋势、政策变化、重大事件
 
   ## 工具使用说明
-  - 使用 web_search 工具搜索财报数据、机构预期、行业新闻
+  - 使用 web_fetch 工具搜索财报数据、机构预期、行业新闻
   - 使用 financial_data 工具获取结构化的财务报表数据
   - 使用 get-news 工具获取最新个股新闻
   - 使用 get-announcement 工具搜索相关公告
@@ -30,7 +30,7 @@ system_prompt: |
   - key_metrics：包含你能获取到的所有关键财务指标及其同比变化
 
 tools:
-  - web_search
+  - web_fetch
   - financial_data
   - get-news
   - get-announcement

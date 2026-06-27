@@ -27,7 +27,7 @@ system_prompt: |
   盲目信仰赛道最终只会高位被套。用财务数据和风险逻辑说服对方。
 
 tools:
-  - web_search
+  - web_fetch
   - financial_data
   - get-news
 
