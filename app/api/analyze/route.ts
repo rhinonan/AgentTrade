@@ -7,6 +7,7 @@ import { WS_EVENTS } from "@/lib/socket/events.js";
 import type { AnalysisTarget } from "@/lib/engine/types.js";
 import { getDb } from "@/lib/db/client.js";
 import { AnalysisRepo } from "@/lib/db/analysis-repo.js";
+import { EventRepo } from "@/lib/db/event-repo.js";
 import { getQuotaHook, type QuotaHook } from "@/lib/auth/types.js";
 import { runWorkflow, loadWorkflowYaml, ensureAgentsLoaded } from "@/lib/langgraph/runner.js";
 import { createLogger } from "@/lib/logger.js";
@@ -87,6 +88,11 @@ export async function POST(req: NextRequest) {
     repo.update(sessionId, { status: "error", context: JSON.stringify({ error: err.message }) });
     const io = getSocketIO();
     io.of("/analysis").to(sessionId).emit(WS_EVENTS.ANALYSIS_ERROR, { message: err.message });
+    // Persist error event
+    try {
+      const eventRepo = new EventRepo(db);
+      eventRepo.insert(sessionId, 0, WS_EVENTS.ANALYSIS_ERROR, { message: err.message });
+    } catch (e) { console.error("Failed to persist error event:", e); }
   });
 
   return NextResponse.json({ sessionId });
@@ -101,6 +107,17 @@ async function runAnalysis(
   const repo = new AnalysisRepo(db);
   const io = getSocketIO();
   const ns = io.of("/analysis");
+  const eventRepo = new EventRepo(db);
+  let seq = 0;
+
+  function emitAndPersist(eventType: string, payload: Record<string, unknown>) {
+    ns.to(sessionId).emit(eventType, payload);
+    try {
+      eventRepo.insert(sessionId, seq++, eventType, payload);
+    } catch (e) {
+      console.error(`[event-repo] Failed to persist event ${eventType} seq=${seq - 1}:`, e);
+    }
+  }
 
   try {
     if (dto.provider) {
@@ -110,7 +127,7 @@ async function runAnalysis(
     const target = await resolveTarget(dto);
     log.info("Target resolved", { sessionId, target: target.code, name: target.name });
 
-    ns.to(sessionId).emit(WS_EVENTS.ANALYSIS_START, {
+    emitAndPersist(WS_EVENTS.ANALYSIS_START, {
       target: { type: target.type, code: target.code, name: target.name },
       workflow: dto.workflow ?? "earnings-debate",
     });
@@ -144,21 +161,21 @@ async function runAnalysis(
               : (nodeCfg as any)?.agent ?? nodeId;
           const nodeType = nodeCfg?.type ?? "standard";
 
-          ns.to(sessionId).emit(WS_EVENTS.NODE_START, {
+          emitAndPersist(WS_EVENTS.NODE_START, {
             nodeId,
             agentName,
             nodeType,
           });
 
           // 同时发送旧版 step:start 事件（向后兼容）
-          ns.to(sessionId).emit(WS_EVENTS.STEP_START, {
+          emitAndPersist(WS_EVENTS.STEP_START, {
             stepId: nodeId,
             type: nodeType,
             agentIds: [agentName],
           });
 
           // 发出 agent:thinking 事件供前端状态机使用
-          ns.to(sessionId).emit(WS_EVENTS.AGENT_THINKING, {
+          emitAndPersist(WS_EVENTS.AGENT_THINKING, {
             nodeId,
             agentName,
           });
@@ -174,14 +191,14 @@ async function runAnalysis(
           const update = result as Record<string, unknown>;
           const findings = extractFindings(nodeId, nodeCfg, update);
 
-          ns.to(sessionId).emit(WS_EVENTS.NODE_END, {
+          emitAndPersist(WS_EVENTS.NODE_END, {
             nodeId,
             agentName,
             findings,
           });
 
           // 发送旧版 step:complete 事件（向后兼容）
-          ns.to(sessionId).emit(WS_EVENTS.STEP_COMPLETE, {
+          emitAndPersist(WS_EVENTS.STEP_COMPLETE, {
             stepId: nodeId,
             findings,
           });
@@ -191,7 +208,7 @@ async function runAnalysis(
             const totalRounds = update.round as number;
             const msgs = (update.messages as { role: string; content: string }[]) ?? [];
             for (let r = 0; r <= totalRounds; r++) {
-              ns.to(sessionId).emit(WS_EVENTS.DEBATE_ROUND, {
+              emitAndPersist(WS_EVENTS.DEBATE_ROUND, {
                 nodeId,
                 round: r,
                 participantLabel: msgs
@@ -203,7 +220,7 @@ async function runAnalysis(
             // 辩论因认输而终止时发出 DEBATE_YIELD 事件
             if (update.stop_reason === "yield") {
               const lastMsg = msgs[msgs.length - 1];
-              ns.to(sessionId).emit(WS_EVENTS.DEBATE_YIELD, {
+              emitAndPersist(WS_EVENTS.DEBATE_YIELD, {
                 nodeId,
                 fromAgent: lastMsg?.role ?? "unknown",
                 toAgent: msgs.length >= 2 ? msgs[msgs.length - 2].role : "unknown",
@@ -213,13 +230,13 @@ async function runAnalysis(
           }
         },
         onAgentThinking: async (nodeId, agentName) => {
-          ns.to(sessionId).emit(WS_EVENTS.AGENT_THINKING, {
+          emitAndPersist(WS_EVENTS.AGENT_THINKING, {
             nodeId,
             agentName,
           });
         },
         onToolCall: async (nodeId, agentName, tool, args) => {
-          ns.to(sessionId).emit(WS_EVENTS.AGENT_TOOL_CALL, {
+          emitAndPersist(WS_EVENTS.AGENT_TOOL_CALL, {
             nodeId,
             agentName,
             tool,
@@ -228,7 +245,7 @@ async function runAnalysis(
           });
         },
         onToolResult: async (nodeId, agentName, tool, result) => {
-          ns.to(sessionId).emit(WS_EVENTS.AGENT_TOOL_RESULT, {
+          emitAndPersist(WS_EVENTS.AGENT_TOOL_RESULT, {
             nodeId,
             agentName,
             tool,
@@ -237,7 +254,7 @@ async function runAnalysis(
           });
         },
         onAgentWriting: async (nodeId, agentName, conclusion, reasoning) => {
-          ns.to(sessionId).emit(WS_EVENTS.AGENT_WRITING, {
+          emitAndPersist(WS_EVENTS.AGENT_WRITING, {
             nodeId,
             agentName,
             conclusion,
@@ -272,7 +289,7 @@ async function runAnalysis(
       }),
     });
 
-    ns.to(sessionId).emit(WS_EVENTS.ANALYSIS_COMPLETE, {
+    emitAndPersist(WS_EVENTS.ANALYSIS_COMPLETE, {
       context: {
         target,
         workflowName: dto.workflow ?? "earnings-debate",
@@ -292,7 +309,7 @@ async function runAnalysis(
       );
     }
     repo.update(sessionId, { status: "error", context: JSON.stringify({ error: (err as Error).message }) });
-    ns.to(sessionId).emit(WS_EVENTS.ANALYSIS_ERROR, { message: (err as Error).message });
+    emitAndPersist(WS_EVENTS.ANALYSIS_ERROR, { message: (err as Error).message });
   }
 }
 
