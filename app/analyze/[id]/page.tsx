@@ -7,6 +7,10 @@ import { EventRepo } from "@/lib/db/event-repo.js";
 import { AnalysisLiveClient } from "./client";
 import { StaticFindingsPanel } from "./static-panel";
 
+// 禁止 Next.js 缓存此页面 — 分析状态（包括事件）实时变化，
+// 缓存会导致用户刷新后看到过时的空白状态
+export const dynamic = "force-dynamic";
+
 export default async function AnalysisPage({
   params,
 }: {
